@@ -4,7 +4,7 @@ import sys
 import torch
 from torch import nn
 
-from models.convlstm_cell.convlstmcell import BaseConvLSTMCell
+from models.convlstm_cell.convlstm_cell import BaseConvLSTMCell
 from common.constans import DEVICE, WeightsInitializer
 
 
