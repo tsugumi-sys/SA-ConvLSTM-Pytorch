@@ -7,10 +7,9 @@ from torch.utils.data import Dataset
 from torch.nn.modules.loss import _Loss
 from torch.nn import functional as F
 
-# Need to import from the parent directory to load pytorch model in evaluate directory.
-sys.path.append("..")
-from train.src.models.convlstm.convlstm import ConvLSTM
-from train.src.config import WeightsInitializer
+sys.path.append(".")
+from models.convlstm.convlstm import ConvLSTM
+from common.constans import WeightsInitializer
 
 
 class Seq2Seq(nn.Module):
@@ -64,7 +63,9 @@ class Seq2Seq(nn.Module):
             ),
         )
 
-        self.sequencial.add_module("bathcnorm1", nn.BatchNorm3d(num_features=num_kernels))
+        self.sequencial.add_module(
+            "layernorm1", nn.LayerNorm([num_kernels, 3, *self.frame_size])
+        )
 
         # Add the rest of the layers
         for layer_idx in range(2, num_layers + 1):
@@ -81,16 +82,11 @@ class Seq2Seq(nn.Module):
                 ),
             )
 
-            self.sequencial.add_module(f"batchnorm{layer_idx}", nn.BatchNorm3d(num_features=num_kernels))
+            self.sequencial.add_module(
+                f"layernorm{layer_idx}",
+                nn.LayerNorm([num_kernels, 3, *self.frame_size]),
+            )
 
-        # Add Convolutional layer to predict output frame
-        # output shape is (batch_size, out_channels, height, width)
-        # self.conv = nn.Conv2d(
-        #     in_channels=num_kernels,
-        #     out_channels=num_channels,
-        #     kernel_size=kernel_size,
-        #     padding=padding,
-        # )
         self.sequencial.add_module(
             "convlstm_last",
             ConvLSTM(
@@ -115,3 +111,18 @@ class Seq2Seq(nn.Module):
         batch_size, out_channels, height, width = output.size()
         output = torch.reshape(output, (batch_size, out_channels, 1, height, width))
         return output
+
+
+if __name__ == "__main__":
+    input_X = torch.rand((5, 6, 3, 16, 16), dtype=torch.float)
+    convlstm = Seq2Seq(
+        num_channels=6,
+        kernel_size=3,
+        num_kernels=4,
+        padding="same",
+        activation="relu",
+        frame_size=(16, 16),
+        num_layers=3,
+    )
+    y = convlstm.forward(input_X)
+    print(y.shape)

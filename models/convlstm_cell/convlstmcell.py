@@ -4,11 +4,10 @@ import sys
 import torch
 from torch import nn
 
-sys.path.append("..")
-from train.src.config import DEVICE, WeightsInitializer
+from common.constans import WeightsInitializer, DEVICE
 
 
-class ConvLSTMCell(nn.Module):
+class BaseConvLSTMCell(nn.Module):
     def __init__(
         self,
         in_channels: int,
@@ -17,19 +16,19 @@ class ConvLSTMCell(nn.Module):
         padding: Union[int, Tuple, str],
         activation: str,
         frame_size: Tuple,
-        weights_initializer: Optional[str] = WeightsInitializer.Zeros.value,
+        weights_initializer: Optional[str] = WeightsInitializer.Zeros,
     ) -> None:
-        """[Initialize ConvLSTMCell]
+        """
 
         Args:
-            in_channels (int): [Number of channels of input tensor.]
-            out_channels (int): [Number of channels of output tensor]
-            kernel_size (Union[int, Tuple]): [Size of the convolution kernel.]
-            padding (padding (Union[int, Tuple, str]): ['same', 'valid' or (int, int)]): ['same', 'valid' or (int, int)]
-            activation (str): [Name of activation function]
-            frame_size (Tuple): [height and width]
+            in_channels (int): Number of channels of input tensor.
+            out_channels (int): Number of channels of output tensor
+            kernel_size (Union[int, Tuple]): Size of the convolution kernel.
+            padding (padding (Union[int, Tuple, str]): 'same', 'valid' or (int, int)
+            activation (str): Name of activation function
+            frame_size (Tuple): height and width
         """
-        super(ConvLSTMCell, self).__init__()
+        super(BaseConvLSTMCell, self).__init__()
 
         if activation == "tanh":
             self.activation = torch.tanh
@@ -45,21 +44,39 @@ class ConvLSTMCell(nn.Module):
             padding=padding,
         )
 
-        # Initialize weights for Hadamard Products. It is equal to zeros initialize.
-        # [NOTE] When dtype isn't set correctly, predict value comes to be all nan.
-        self.W_ci = nn.parameter.Parameter(torch.zeros(out_channels, *frame_size, dtype=torch.float)).to(DEVICE)
-        self.W_co = nn.parameter.Parameter(torch.zeros(out_channels, *frame_size, dtype=torch.float)).to(DEVICE)
-        self.W_cf = nn.parameter.Parameter(torch.zeros(out_channels, *frame_size, dtype=torch.float)).to(DEVICE)
+        self.W_ci = nn.parameter.Parameter(
+            torch.zeros(out_channels, *frame_size, dtype=torch.float)
+        ).to(DEVICE)
+        self.W_co = nn.parameter.Parameter(
+            torch.zeros(out_channels, *frame_size, dtype=torch.float)
+        ).to(DEVICE)
+        self.W_cf = nn.parameter.Parameter(
+            torch.zeros(out_channels, *frame_size, dtype=torch.float)
+        ).to(DEVICE)
 
         if weights_initializer == WeightsInitializer.Zeros:
             pass
         elif weights_initializer == WeightsInitializer.He:
-            nn.init.kaiming_normal_(self.W_ci, mode="fan_in", nonlinearity="relu")
-            nn.init.kaiming_normal_(self.W_co, mode="fan_in", nonlinearity="relu")
-            nn.init.kaiming_normal_(self.W_cf, mode="fan_in", nonlinearity="relu")
+            nn.init.kaiming_normal_(self.W_ci, mode="fan_in", nonlinearity="leaky_relu")
+            nn.init.kaiming_normal_(self.W_co, mode="fan_in", nonlinearity="leaky_relu")
+            nn.init.kaiming_normal_(self.W_cf, mode="fan_in", nonlinearity="leaky_relu")
+        elif weights_initializer == WeightsInitializer.Xavier:
+            nn.init.xavier_normal_(self.W_ci, gain=1.0)
+            nn.init.xavier_normal_(self.W_co, gain=1.0)
+            nn.init.xavier_normal_(self.W_cf, gain=1.0)
+        else:
+            raise ValueError(f"Invlaid weights Initializer: {weights_initializer}")
 
-    def forward(self, X: torch.Tensor, h_prev: torch.Tensor, c_prev: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        """[forward function of ConvLSTMCell]
+    def forward(
+        self, X: torch.Tensor, h_prev: torch.Tensor, c_prev: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        new_h, new_cell = self.convlstm_cell(X, h_prev, c_prev)
+        return new_h, new_cell
+
+    def convlstm_cell(
+        self, X: torch.Tensor, h_prev: torch.Tensor, c_prev: torch.Tensor
+    ):
+        """
 
         Args:
             X (torch.Tensor): [input data with the shape of ]

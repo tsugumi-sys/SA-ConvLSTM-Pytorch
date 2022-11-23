@@ -4,9 +4,8 @@ import sys
 import torch
 from torch import nn
 
-sys.path.append("..")
-from train.src.convlstmcell import ConvLSTMCell
-from train.src.config import DEVICE, WeightsInitializer
+from models.convlstm_cell.convlstmcell import BaseConvLSTMCell
+from common.constans import DEVICE, WeightsInitializer
 
 
 class ConvLSTM(nn.Module):
@@ -18,9 +17,9 @@ class ConvLSTM(nn.Module):
         padding: Union[int, Tuple, str],
         activation: str,
         frame_size: Tuple,
-        weights_initializer: Optional[str] = WeightsInitializer.Zeros.value,
+        weights_initializer: Optional[str] = WeightsInitializer.Zeros,
     ) -> None:
-        """Initialize ConsLTSM
+        """
 
         Args:
             in_channels (int): [input channel]
@@ -32,40 +31,63 @@ class ConvLSTM(nn.Module):
         """
         super(ConvLSTM, self).__init__()
 
-        self.out_channels = out_channels
-        self.ConvLSTMCell = ConvLSTMCell(in_channels, out_channels, kernel_size, padding, activation, frame_size, weights_initializer)
+        self.ConvLSTMCell = BaseConvLSTMCell(
+            in_channels,
+            out_channels,
+            kernel_size,
+            padding,
+            activation,
+            frame_size,
+            weights_initializer,
+        )
 
-    def forward(self, X: torch.Tensor) -> torch.Tensor:
-        """forward calculation of ConvLSTM
+        self.out_channels = out_channels
+
+    def forward(
+        self,
+        X: torch.Tensor,
+        h: Optional[torch.Tensor] = None,
+        cell: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        """
 
         Args:
-            X (torch.Tensor): [tensor with the shape of (batch_size, num_channels, seq_len, height, width)]
+            X (torch.Tensor): tensor with the shape of (batch_size, num_channels, seq_len, height, width)
 
         Returns:
-            torch.Tensor: [tensor with the same shape of X]
+            torch.Tensor: tensor with the same shape of X
         """
         batch_size, _, seq_len, height, width = X.size()
 
         # Initialize output
-        output = torch.zeros((batch_size, self.out_channels, seq_len, height, width)).to(DEVICE)
+        output = torch.zeros(
+            (batch_size, self.out_channels, seq_len, height, width)
+        ).to(DEVICE)
 
         # Initialize hidden state
-        H = torch.zeros((batch_size, self.out_channels, height, width)).to(DEVICE)
+        h = torch.zeros((batch_size, self.out_channels, height, width)).to(DEVICE)
 
         # Initialize cell input
-        C = torch.zeros((batch_size, self.out_channels, height, width)).to(DEVICE)
+        cell = torch.zeros((batch_size, self.out_channels, height, width)).to(DEVICE)
 
         # Unroll over time steps
         for time_step in range(seq_len):
-            H, C = self.ConvLSTMCell(X[:, :, time_step], H, C)
+            h, cell = self.ConvLSTMCell(X[:, :, time_step], h, cell)
 
-            output[:, :, time_step] = H
+            output[:, :, time_step] = h  # type: ignore
 
         return output
 
 
 if __name__ == "__main__":
     input_X = torch.rand((5, 6, 3, 16, 16), dtype=torch.float)
-    convlstm = ConvLSTM(in_channels=6, out_channels=15, kernel_size=3, padding=1, activation="relu", frame_size=(16, 16))
+    convlstm = ConvLSTM(
+        in_channels=6,
+        out_channels=15,
+        kernel_size=3,
+        padding=1,
+        activation="relu",
+        frame_size=(16, 16),
+    )
     y = convlstm.forward(input_X)
     print(y.shape)

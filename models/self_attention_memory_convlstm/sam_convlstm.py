@@ -4,12 +4,16 @@ from torch import nn
 
 import sys
 
-from train.src.models.self_attention_convlstm.self_attention_convlstm import SelfAttentionWithConv2d
+from train.src.models.self_attention_convlstm.self_attention_convlstm import (
+    SelfAttentionWithConv2d,
+)
 
 sys.path.append("..")
 from train.src.config import DEVICE, WeightsInitializer
 from train.src.models.convlstm_cell.interface import ConvLSTMCellInterface
-from train.src.models.self_attention_memory_convlstm.self_attention_meomry_module import SelfAttentionMemoryWithConv2d
+from train.src.models.self_attention_memory_convlstm.self_attention_meomry_module import (
+    SelfAttentionMemoryWithConv2d,
+)
 
 
 class SelfAttentionMemoryConvLSTMCell(ConvLSTMCellInterface):
@@ -24,11 +28,29 @@ class SelfAttentionMemoryConvLSTMCell(ConvLSTMCellInterface):
         frame_size: Tuple,
         weights_initializer: Optional[str] = WeightsInitializer.Zeros.value,
     ):
-        super().__init__(in_channels, out_channels, kernel_size, padding, activation, frame_size, weights_initializer)
-        self.self_attention_memory = SelfAttentionMemoryWithConv2d(out_channels, attention_layer_hidden_dims)
-        self.self_attention = SelfAttentionWithConv2d(in_channels, attention_layer_hidden_dims)
+        super().__init__(
+            in_channels,
+            out_channels,
+            kernel_size,
+            padding,
+            activation,
+            frame_size,
+            weights_initializer,
+        )
+        self.self_attention_memory = SelfAttentionMemoryWithConv2d(
+            out_channels, attention_layer_hidden_dims
+        )
+        self.self_attention = SelfAttentionWithConv2d(
+            in_channels, attention_layer_hidden_dims
+        )
 
-    def forward(self, X: torch.Tensor, prev_h: torch.Tensor, prev_cell: torch.Tensor, prev_m: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def forward(
+        self,
+        X: torch.Tensor,
+        prev_h: torch.Tensor,
+        prev_cell: torch.Tensor,
+        prev_m: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         X = self.self_attention(X)
 
         conv_output = self.conv(torch.cat([X, prev_h], dim=1))
@@ -62,14 +84,23 @@ class SelfAttentionMemoryConvLSTM(nn.Module):
         super(SelfAttentionMemoryConvLSTM, self).__init__()
         self.out_channels = out_channels
         self.sam_convlstm_cell = SelfAttentionMemoryConvLSTMCell(
-            attention_layer_hidden_dims, in_channels, out_channels, kernel_size, padding, activation, frame_size, weights_initializer
+            attention_layer_hidden_dims,
+            in_channels,
+            out_channels,
+            kernel_size,
+            padding,
+            activation,
+            frame_size,
+            weights_initializer,
         )
 
     def forward(self, X: torch.Tensor) -> torch.Tensor:
         batch_size, _, seq_len, height, width = X.size()
 
         # Initialize output
-        output = torch.zeros((batch_size, self.out_channels, seq_len, height, width)).to(DEVICE)
+        output = torch.zeros(
+            (batch_size, self.out_channels, seq_len, height, width)
+        ).to(DEVICE)
 
         # Initialize hidden state
         H = torch.zeros((batch_size, self.out_channels, height, width)).to(DEVICE)
