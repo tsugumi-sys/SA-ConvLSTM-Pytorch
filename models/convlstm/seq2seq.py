@@ -107,10 +107,7 @@ class Seq2Seq(nn.Module):
         if self.return_sequences is True:
             return output
 
-        output = output[:, :, -1, :, :]
-        batch_size, out_channels, height, width = output.size()
-        output = torch.reshape(output, (batch_size, out_channels, 1, height, width))
-        return output
+        return output[:, :, -1:, ...]
 
 
 if __name__ == "__main__":

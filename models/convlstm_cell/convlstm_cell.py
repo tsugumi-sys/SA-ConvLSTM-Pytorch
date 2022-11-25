@@ -68,13 +68,13 @@ class BaseConvLSTMCell(nn.Module):
             raise ValueError(f"Invlaid weights Initializer: {weights_initializer}")
 
     def forward(
-        self, X: torch.Tensor, h_prev: torch.Tensor, c_prev: torch.Tensor
+        self, X: torch.Tensor, prev_h: torch.Tensor, prev_cell: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        new_h, new_cell = self.convlstm_cell(X, h_prev, c_prev)
+        new_h, new_cell = self.convlstm_cell(X, prev_h, prev_cell)
         return new_h, new_cell
 
     def convlstm_cell(
-        self, X: torch.Tensor, h_prev: torch.Tensor, c_prev: torch.Tensor
+        self, X: torch.Tensor, prev_h: torch.Tensor, prev_cell: torch.Tensor
     ):
         """
 
@@ -86,15 +86,15 @@ class BaseConvLSTMCell(nn.Module):
         Returns:
             Tuple[torch.Tensor, torch.Tensor]: [current_hidden_state, current_cell_state]
         """
-        conv_output = self.conv(torch.cat([X, h_prev], dim=1))
+        conv_output = self.conv(torch.cat([X, prev_h], dim=1))
 
         i_conv, f_conv, c_conv, o_conv = torch.chunk(conv_output, chunks=4, dim=1)
 
-        input_gate = torch.sigmoid(i_conv + self.W_ci * c_prev)
-        forget_gate = torch.sigmoid(f_conv + self.W_cf * c_prev)
+        input_gate = torch.sigmoid(i_conv + self.W_ci * prev_cell)
+        forget_gate = torch.sigmoid(f_conv + self.W_cf * prev_cell)
 
         # Current cell output (state)
-        C = forget_gate * c_prev + input_gate * self.activation(c_conv)
+        C = forget_gate * prev_cell + input_gate * self.activation(c_conv)
 
         output_gate = torch.sigmoid(o_conv + self.W_co * C)
 

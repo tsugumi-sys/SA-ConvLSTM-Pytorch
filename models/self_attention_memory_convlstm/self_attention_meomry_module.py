@@ -4,8 +4,8 @@ from typing import Tuple
 import torch
 from torch import nn
 
-sys.path.append("..")
-from train.src.config import DEVICE
+sys.path.append(".")
+from common.constans import DEVICE
 
 
 class SelfAttentionMemoryWithConv2d(nn.Module):
@@ -47,7 +47,9 @@ class SelfAttentionMemoryWithConv2d(nn.Module):
         q_h = q_h.view(batch_size, self.hidden_dim, H * W).transpose(1, 2)
         v_h = v_h.view(batch_size, self.hidden_dim, H * W)
 
-        attention_h = torch.softmax(torch.bmm(q_h, k_h), dim=-1)  # The shape is (batch_size, H*W, H*W)
+        attention_h = torch.softmax(
+            torch.bmm(q_h, k_h), dim=-1
+        )  # The shape is (batch_size, H*W, H*W)
         z_h = torch.matmul(attention_h, v_h.permute(0, 2, 1))
         z_h = z_h.transpose(1, 2).view(batch_size, self.input_dim, H, W)
 
