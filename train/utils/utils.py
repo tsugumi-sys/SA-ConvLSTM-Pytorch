@@ -8,7 +8,10 @@ import pandas as pd
 import torch
 from torch import nn
 
-sys.path.join(".")
+sys.path.append(".")
+from models.convlstm.seq2seq import Seq2Seq
+from models.self_attention_convlstm.sa_seq2seq import SASeq2Seq
+from models.self_attention_memory_convlstm.sam_seq2seq import SAMSeq2Seq
 
 
 def save_learning_curve_plot(
@@ -63,5 +66,37 @@ def save_metrics(
 
 
 def save_seq2seq_model(model: nn.Module, save_path: str) -> None:
-
+    if isinstance(model, Seq2Seq):
+        torch.save(
+            {
+                "model_state_dict": model.state_dict(),
+                "num_channels": model.num_channels,
+                "kernel_size": model.kernel_size,
+                "num_kernels": model.num_kernels,
+                "padding": model.padding,
+                "activation": model.activation,
+                "frame_size": model.frame_size,
+                "num_layers": model.num_layers,
+                "weights_initializer": model.weights_initializer,
+            },
+            save_path,
+        )
+    elif isinstance(model, SASeq2Seq) or isinstance(model, SAMSeq2Seq):
+        torch.save(
+            {
+                "model_state_dict": model.state_dict(),
+                "attention_hidden_dims": model.attention_hidden_dims,
+                "num_channels": model.num_channels,
+                "kernel_size": model.kernel_size,
+                "num_kernels": model.num_kernels,
+                "padding": model.padding,
+                "activation": model.activation,
+                "frame_size": model.frame_size,
+                "num_layers": model.num_layers,
+                "weights_initializer": model.weights_initializer,
+            },
+            save_path,
+        )
+    else:
+        raise ValueError(f"Unknown model {model}")
     return

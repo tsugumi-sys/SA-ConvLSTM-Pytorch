@@ -6,12 +6,7 @@ import torch
 from torch import nn
 
 sys.path.append(".")
-from train.src.seq_to_seq import Seq2Seq  # noqa: E402
-from train.src.obpoint_seq_to_seq import OBPointSeq2Seq  # noqa: E402
-from train.src.model_for_test import TestModel  # noqa: E402
-from train.src.models.self_attention_convlstm.self_attention_convlstm import (
-    SelfAttentionSeq2Seq,
-)
+from train.utils.utils import save_seq2seq_model
 
 
 class EarlyStopping:
@@ -20,7 +15,7 @@ class EarlyStopping:
         patience: int = 7,
         verbose: bool = False,
         delta: float = 0.0,
-        path: str = "checkpoint.pt",
+        model_save_path: str = "checkpoint.pt",
         trace_func: Callable = print,
     ) -> None:
         """Early stops the training if validation loss doesn't improve after a given patience
@@ -39,7 +34,7 @@ class EarlyStopping:
         self.early_stop = False
         self.val_loss_min = np.Inf
         self.delta = delta
-        self.path = path
+        self.model_save_path = model_save_path
         self.trace_func = trace_func
         self.state_dict = None
 
@@ -65,60 +60,5 @@ class EarlyStopping:
                 f"Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}). Saving model ..."
             )
 
-        if isinstance(model, OBPointSeq2Seq):
-            torch.save(
-                {
-                    "model_state_dict": model.state_dict(),
-                    "num_channels": model.num_channels,
-                    "ob_point_count": model.ob_point_count,
-                    "kernel_size": model.kernel_size,
-                    "num_kernels": model.num_kernels,
-                    "padding": model.padding,
-                    "activation": model.activation,
-                    "frame_size": model.frame_size,
-                    "num_layers": model.num_layers,
-                    "input_seq_length": model.input_seq_length,
-                    "prediction_seq_length": model.prediction_seq_length,
-                    "out_channels": model.out_channels,
-                    "weights_initializer": model.weights_initializer,
-                },
-                self.path,
-            )
-        elif isinstance(model, Seq2Seq):
-            torch.save(
-                {
-                    "model_state_dict": model.state_dict(),
-                    "num_channels": model.num_channels,
-                    "kernel_size": model.kernel_size,
-                    "num_kernels": model.num_kernels,
-                    "padding": model.padding,
-                    "activation": model.activation,
-                    "frame_size": model.frame_size,
-                    "num_layers": model.num_layers,
-                    "weights_initializer": model.weights_initializer,
-                },
-                self.path,
-            )
-        elif isinstance(model, SelfAttentionSeq2Seq):
-            torch.save(
-                {
-                    "model_state_dict": model.state_dict(),
-                    "attention_layer_hidden_dims": model.attention_layer_hidden_dims,
-                    "num_channels": model.num_channels,
-                    "kernel_size": model.kernel_size,
-                    "num_kernels": model.num_kernels,
-                    "padding": model.padding,
-                    "activation": model.activation,
-                    "frame_size": model.frame_size,
-                    "num_layers": model.num_layers,
-                    "input_seq_length": model.input_seq_length,
-                    "prediction_seq_length": model.prediction_seq_length,
-                    "out_channels": model.out_channels,
-                    "weights_initializer": model.weights_initializer,
-                },
-                self.path,
-            )
-        elif isinstance(model, TestModel):
-            torch.save({"model_state_dict": model.state_dict()}, self.path)
-
+        save_seq2seq_model(model, self.model_save_path)
         self.val_loss_min = val_loss
