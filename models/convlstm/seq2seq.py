@@ -3,9 +3,6 @@ import sys
 
 import torch
 from torch import nn
-from torch.utils.data import Dataset
-from torch.nn.modules.loss import _Loss
-from torch.nn import functional as F
 
 sys.path.append(".")
 from models.convlstm.convlstm import ConvLSTM
@@ -22,6 +19,8 @@ class Seq2Seq(nn.Module):
         activation: str,
         frame_size: Tuple,
         num_layers: int,
+        input_seq_length: int,
+        out_channels: Optional[int] = None,
         weights_initializer: Optional[str] = WeightsInitializer.Zeros.value,
         return_sequences: bool = False,
     ) -> None:
@@ -44,6 +43,8 @@ class Seq2Seq(nn.Module):
         self.activation = activation
         self.frame_size = frame_size
         self.num_layers = num_layers
+        self.input_seq_length = input_seq_length
+        self.out_channels = out_channels if out_channels is not None else num_channels
         self.weights_initializer = weights_initializer
         self.return_sequences = return_sequences
 
@@ -64,7 +65,8 @@ class Seq2Seq(nn.Module):
         )
 
         self.sequencial.add_module(
-            "layernorm1", nn.LayerNorm([num_kernels, 3, *self.frame_size])
+            "layernorm1",
+            nn.LayerNorm([num_kernels, self.input_seq_length, *self.frame_size]),
         )
 
         # Add the rest of the layers
@@ -84,7 +86,7 @@ class Seq2Seq(nn.Module):
 
             self.sequencial.add_module(
                 f"layernorm{layer_idx}",
-                nn.LayerNorm([num_kernels, 3, *self.frame_size]),
+                nn.LayerNorm([num_kernels, self.input_seq_length, *self.frame_size]),
             )
 
         self.sequencial.add_module(
@@ -111,15 +113,22 @@ class Seq2Seq(nn.Module):
 
 
 if __name__ == "__main__":
-    input_X = torch.rand((5, 6, 3, 16, 16), dtype=torch.float)
-    convlstm = Seq2Seq(
-        num_channels=6,
-        kernel_size=3,
-        num_kernels=4,
-        padding="same",
-        activation="relu",
-        frame_size=(16, 16),
-        num_layers=3,
+    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+    input_X = torch.rand((5, 3, 6, 16, 16), dtype=torch.float, device=DEVICE)
+    convlstm = (
+        Seq2Seq(
+            num_channels=3,
+            kernel_size=3,
+            num_kernels=4,
+            padding="same",
+            activation="relu",
+            frame_size=(16, 16),
+            num_layers=3,
+            input_seq_length=6,
+            return_sequences=True,
+        )
+        .to(DEVICE)
+        .to(torch.float)
     )
     y = convlstm.forward(input_X)
     print(y.shape)

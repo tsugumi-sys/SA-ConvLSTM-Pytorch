@@ -8,9 +8,9 @@ sys.path.append(".")
 from common.constans import DEVICE
 
 
-class SelfAttentionMemoryWithConv2d(nn.Module):
+class SelfAttentionMemory(nn.Module):
     def __init__(self, input_dim: int, hidden_dim: int) -> None:
-        super(SelfAttentionMemoryWithConv2d, self).__init__()
+        super(SelfAttentionMemory, self).__init__()
 
         # attention for hidden layer
         self.query_h = nn.Conv2d(input_dim, hidden_dim, 1)
@@ -45,7 +45,7 @@ class SelfAttentionMemoryWithConv2d(nn.Module):
 
         k_h = k_h.view(batch_size, self.hidden_dim, H * W)
         q_h = q_h.view(batch_size, self.hidden_dim, H * W).transpose(1, 2)
-        v_h = v_h.view(batch_size, self.hidden_dim, H * W)
+        v_h = v_h.view(batch_size, self.input_dim, H * W)
 
         attention_h = torch.softmax(
             torch.bmm(q_h, k_h), dim=-1
@@ -58,7 +58,7 @@ class SelfAttentionMemoryWithConv2d(nn.Module):
         v_m = self.value_m(m)
 
         k_m = k_m.view(batch_size, self.hidden_dim, H * W)
-        v_m = v_m.view(batch_size, self.hidden_dim, H * W)
+        v_m = v_m.view(batch_size, self.input_dim, H * W)
 
         attention_m = torch.softmax(torch.bmm(q_h, k_m), dim=-1)
         z_m = torch.matmul(attention_m, v_m.permute(0, 2, 1))
@@ -75,7 +75,7 @@ class SelfAttentionMemoryWithConv2d(nn.Module):
         # mi_conv: Wm;zi * Z + Wm;hi * Ht + bm;i
         # mg_conv: Wm;zg * Z + Wm;hg * Ht + bm;g
         # mo_conv: Wm;zo * Z + Wm;ho * Ht + bm;o
-        mi_conv, mg_conv, mo_conv = torch.chunk(W, chunks=self.input_dim, dim=1)
+        mi_conv, mg_conv, mo_conv = torch.chunk(W, chunks=3, dim=1)
         input_gate = torch.sigmoid(mi_conv)
         g = torch.tanh(mg_conv)
         new_M = (1 - input_gate) * m + input_gate * g
