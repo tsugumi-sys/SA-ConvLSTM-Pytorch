@@ -6,7 +6,7 @@ from torch import nn
 
 sys.path.append(".")
 from models.convlstm_cell.convlstm_cell import BaseConvLSTMCell
-from models.self_attention_memory_convlstm.self_attention_meomry_module import (
+from models.self_attention_memory_convlstm.self_attention_memory_module import (
     SelfAttentionMemory,
 )
 from models.self_attention_convlstm.self_attention import SelfAttention
