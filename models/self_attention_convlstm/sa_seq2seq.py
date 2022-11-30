@@ -60,40 +60,42 @@ class SASeq2Seq(nn.Module):
             "sa_convlstm1",
             SAConvLSTM(
                 attention_hidden_dims=self.attention_hidden_dims,
-                in_channels=num_channels,
-                out_channels=num_kernels,
-                kernel_size=kernel_size,
-                padding=padding,
-                activation=activation,
-                frame_size=frame_size,
-                weights_initializer=weights_initializer,
+                in_channels=self.num_channels,
+                out_channels=self.num_kernels,
+                kernel_size=self.kernel_size,
+                padding=self.padding,
+                activation=self.activation,
+                frame_size=self.frame_size,
+                weights_initializer=self.weights_initializer,
             ),
         )
 
         self.sequential.add_module(
             "layernorm1",
-            nn.LayerNorm([num_kernels, self.input_seq_length, *self.frame_size]),
+            nn.LayerNorm([self.num_kernels, self.input_seq_length, *self.frame_size]),
         )
 
         # Add the rest of the layers
-        for layer_idx in range(1, num_layers):
+        for layer_idx in range(2, self.num_layers + 1):
             self.sequential.add_module(
                 f"sa_convlstm{layer_idx}",
                 SAConvLSTM(
                     attention_hidden_dims=self.attention_hidden_dims,
-                    in_channels=num_kernels,
-                    out_channels=num_kernels,
-                    kernel_size=kernel_size,
-                    padding=padding,
-                    activation=activation,
-                    frame_size=frame_size,
-                    weights_initializer=weights_initializer,
+                    in_channels=self.num_kernels,
+                    out_channels=self.num_kernels,
+                    kernel_size=self.kernel_size,
+                    padding=self.padding,
+                    activation=self.activation,
+                    frame_size=self.frame_size,
+                    weights_initializer=self.weights_initializer,
                 ),
             )
 
             self.sequential.add_module(
                 f"layernorm{layer_idx}",
-                nn.LayerNorm([num_kernels, self.input_seq_length, *self.frame_size]),
+                nn.LayerNorm(
+                    [self.num_kernels, self.input_seq_length, *self.frame_size]
+                ),
             )
 
         self.sequential.add_module(
