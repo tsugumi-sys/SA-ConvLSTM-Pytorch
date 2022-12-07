@@ -52,6 +52,7 @@ class SelfAttentionMemory(nn.Module):
         )  # The shape is (batch_size, H*W, H*W)
         z_h = torch.matmul(attention_h, v_h.permute(0, 2, 1))
         z_h = z_h.transpose(1, 2).view(batch_size, self.input_dim, H, W)
+        z_h = self.z_h(z_h)
 
         # memotry attention
         k_m = self.key_m(m)
@@ -63,6 +64,7 @@ class SelfAttentionMemory(nn.Module):
         attention_m = torch.softmax(torch.bmm(q_h, k_m), dim=-1)
         z_m = torch.matmul(attention_m, v_m.permute(0, 2, 1))
         z_m = z_m.transpose(1, 2).view(batch_size, self.input_dim, H, W)
+        z_m = self.z_m(z_m)
 
         # channel concat of Zh and Zm.
         Z = torch.cat([z_h, z_m], dim=1)

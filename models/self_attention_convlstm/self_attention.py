@@ -36,6 +36,6 @@ class SelfAttention(nn.Module):
         z = torch.matmul(attention, v_h.permute(0, 2, 1))
         z = z.transpose(1, 2).view(batch_size, self.input_dim, H, W)
 
-        new_h = self.z(z) + h
+        new_h = self.z(z)
 
         return new_h
