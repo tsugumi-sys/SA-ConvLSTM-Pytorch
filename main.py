@@ -1,3 +1,5 @@
+import os
+
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, random_split
@@ -37,14 +39,22 @@ def main():
         train_dataset, batch_size=train_batch_size, shuffle=True
     )
     valid_dataloader = DataLoader(valid_dataset, batch_size=len(valid_dataset))
+    test_dataloader = DataLoader(test_dataset, batch_size=len(test_dataset))
 
-    sample_dataset, label = test_dataset.__getitem__(0)
+    test_input, test_targets = next(iter(test_dataloader))
+
+
+def save_tensors_as_img(self, tensor: torch.Tensor, save_dir_path: str) -> None:
+    """
+    Tensor should be prediction tensor of each seq 2 seq model. (batch_size, channel, sequence length, height, width)
+    """
     transform = transforms.ToPILImage()
-    for seq_idx in range(10):
-        seq = sample_dataset[:, seq_idx]
-        pil_img = transform(seq)
-        pil_img.save(f"img{seq_idx}.png")
-        # save_image(pil_img, f"img{seq_idx}.png")
+    for batch_idx in range(tensor.size(dim=0)):
+        os.makedirs(os.path.join(save_dir_path, str(batch_idx)))
+        for seq_idx in range(tensor.size(dim=2)):
+            img_tensor = tensor[batch_idx, :, seq_idx]
+            pil_img = transform(img_tensor)
+            pil_img.save(os.path.join(save_dir_path, str(batch_idx), f"{seq_idx}.png"))
 
 
 if __name__ == "__main__":

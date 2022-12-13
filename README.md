@@ -4,6 +4,13 @@
   [Self-Attention ConvLSTM for Spatiotemporal Prediction](https://ojs.aaai.org/index.php/AAAI/article/view/6819/6673)
 - test on MovingMNIST
 
+## NOTE
+
+- In this repo, I denote `SAM-ConvLSTM` as a model uses
+  `self attention memory module` and `SA-ConvLSTM` is a model that uses
+  `self attention module`. In the paper, the model uses
+  `self attention memory module` is called as `SA-ConvLSTM`.
+
 # Directories
 
 - `models/`
