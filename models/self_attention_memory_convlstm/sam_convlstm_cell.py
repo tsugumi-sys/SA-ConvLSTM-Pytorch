@@ -45,7 +45,6 @@ class SAMConvLSTMCell(BaseConvLSTMCell):
         prev_cell: torch.Tensor,
         prev_memory: torch.Tensor,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        X = self.attention_x(X)
         new_h, new_cell = self.convlstm_cell(X, prev_h, prev_cell)
         new_h, new_memory = self.attention_memory(new_h, prev_memory)
         return new_h.to(DEVICE), new_cell.to(DEVICE), new_memory.to(DEVICE)
