@@ -1,12 +1,11 @@
-from typing import Callable
 import sys
+from typing import Callable
 
 import numpy as np
-import torch
 from torch import nn
 
 sys.path.append(".")
-from train.utils.utils import save_seq2seq_model
+from train.utils.utils import save_seq2seq_model  # noqa: E402
 
 
 class EarlyStopping:

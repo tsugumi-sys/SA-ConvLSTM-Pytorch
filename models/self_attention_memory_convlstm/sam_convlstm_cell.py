@@ -1,16 +1,15 @@
-from typing import Tuple, Union, Optional
 import sys
+from typing import Optional, Tuple, Union
 
 import torch
-from torch import nn
 
 sys.path.append(".")
-from models.convlstm_cell.convlstm_cell import BaseConvLSTMCell
-from models.self_attention_memory_convlstm.self_attention_memory_module import (
+from common.constants import DEVICE, WeightsInitializer  # noqa: E402
+from models.convlstm_cell.convlstm_cell import BaseConvLSTMCell  # noqa: E402
+from models.self_attention_convlstm.self_attention import SelfAttention  # noqa: E402
+from models.self_attention_memory_convlstm.self_attention_memory_module import (  # noqa: E402
     SelfAttentionMemory,
 )
-from models.self_attention_convlstm.self_attention import SelfAttention
-from common.constans import DEVICE, WeightsInitializer
 
 
 class SAMConvLSTMCell(BaseConvLSTMCell):
@@ -44,7 +43,12 @@ class SAMConvLSTMCell(BaseConvLSTMCell):
         prev_h: torch.Tensor,
         prev_cell: torch.Tensor,
         prev_memory: torch.Tensor,
-    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    ) -> Tuple:
         new_h, new_cell = self.convlstm_cell(X, prev_h, prev_cell)
-        new_h, new_memory = self.attention_memory(new_h, prev_memory)
-        return new_h.to(DEVICE), new_cell.to(DEVICE), new_memory.to(DEVICE)
+        new_h, new_memory, attention_h = self.attention_memory(new_h, prev_memory)
+        return (
+            new_h.to(DEVICE),
+            new_cell.to(DEVICE),
+            new_memory.to(DEVICE),
+            attention_h.to(DEVICE),
+        )

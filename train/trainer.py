@@ -1,16 +1,15 @@
-import os
 import sys
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, Tuple
 
 import pandas as pd
 import torch
 from torch import nn
-from torch.utils.data import DataLoader
-from torch.optim import Optimizer
 from torch.nn.modules.loss import _Loss
+from torch.optim import Optimizer
+from torch.utils.data import DataLoader
 
 sys.path.append(".")
-from train.early_stopping import EarlyStopping
+from train.early_stopping import EarlyStopping  # noqa: E402
 
 
 class Trainer:
@@ -88,6 +87,6 @@ class Trainer:
 
     def save_metrics_to_csv(self, results: Dict, save_metrics_path: str) -> None:
         if not save_metrics_path.endswith(".csv"):
-            raise ValueError(f"save_metrics_path should be end with `.csv`")
+            raise ValueError("save_metrics_path should be end with `.csv`")
 
         pd.DataFrame(results).to_csv(save_metrics_path)

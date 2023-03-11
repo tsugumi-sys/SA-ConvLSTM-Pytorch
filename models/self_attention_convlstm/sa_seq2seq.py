@@ -1,18 +1,17 @@
-from typing import Tuple, Union, Optional
 import sys
+from typing import Optional, Tuple, Union
 
 import torch
 from torch import nn
-from torch.utils.data import Dataset
-from torch.nn.modules.loss import _Loss
-from torch.nn import functional as F
 
 sys.path.append(".")
-from models.self_attention_convlstm.sa_convlstm import SAConvLSTM
-from common.constans import WeightsInitializer
+from common.constants import WeightsInitializer  # noqa: E402
+from models.self_attention_convlstm.sa_convlstm import SAConvLSTM  # noqa: E402
 
 
 class SASeq2Seq(nn.Module):
+    """The sequence to sequence model implementation using Base Self-Attention ConvLSTM."""
+
     def __init__(
         self,
         attention_hidden_dims: int,
@@ -28,7 +27,7 @@ class SASeq2Seq(nn.Module):
         weights_initializer: Optional[str] = WeightsInitializer.Zeros.value,
         return_sequences: bool = False,
     ) -> None:
-        """Initialize SeqtoSeq
+        """
 
         Args:
             num_channels (int): [Number of input channels]
@@ -60,46 +59,44 @@ class SASeq2Seq(nn.Module):
             "sa_convlstm1",
             SAConvLSTM(
                 attention_hidden_dims=self.attention_hidden_dims,
-                in_channels=self.num_channels,
-                out_channels=self.num_kernels,
-                kernel_size=self.kernel_size,
-                padding=self.padding,
-                activation=self.activation,
-                frame_size=self.frame_size,
-                weights_initializer=self.weights_initializer,
+                in_channels=num_channels,
+                out_channels=num_kernels,
+                kernel_size=kernel_size,
+                padding=padding,
+                activation=activation,
+                frame_size=frame_size,
+                weights_initializer=weights_initializer,
             ),
         )
 
         self.sequential.add_module(
             "layernorm1",
-            nn.LayerNorm([self.num_kernels, self.input_seq_length, *self.frame_size]),
+            nn.LayerNorm([num_kernels, self.input_seq_length, *self.frame_size]),
         )
 
         # Add the rest of the layers
-        for layer_idx in range(2, self.num_layers + 1):
+        for layer_idx in range(2, num_layers + 1):
             self.sequential.add_module(
                 f"sa_convlstm{layer_idx}",
                 SAConvLSTM(
                     attention_hidden_dims=self.attention_hidden_dims,
-                    in_channels=self.num_kernels,
-                    out_channels=self.num_kernels,
-                    kernel_size=self.kernel_size,
-                    padding=self.padding,
-                    activation=self.activation,
-                    frame_size=self.frame_size,
-                    weights_initializer=self.weights_initializer,
+                    in_channels=num_kernels,
+                    out_channels=num_kernels,
+                    kernel_size=kernel_size,
+                    padding=padding,
+                    activation=activation,
+                    frame_size=frame_size,
+                    weights_initializer=weights_initializer,
                 ),
             )
 
             self.sequential.add_module(
                 f"layernorm{layer_idx}",
-                nn.LayerNorm(
-                    [self.num_kernels, self.input_seq_length, *self.frame_size]
-                ),
+                nn.LayerNorm([num_kernels, self.input_seq_length, *self.frame_size]),
             )
 
         self.sequential.add_module(
-            f"conv3d",
+            "conv3d",
             nn.Conv3d(
                 in_channels=self.num_kernels,
                 out_channels=self.out_channels,
@@ -119,6 +116,17 @@ class SASeq2Seq(nn.Module):
 
         return output[:, :, -1:, ...]
 
+    def get_attention_maps(self):
+        # get all sa_convlstm module
+        sa_convlstm_modules = [
+            (name, module)
+            for name, module in self.named_modules()
+            if module.__class__.__name__ == "SAConvLSTM"
+        ]
+        return {
+            name: module.attention_scores for name, module in sa_convlstm_modules
+        }  # attention scores shape is (batch_size, seq_length, height * width)
+
 
 if __name__ == "__main__":
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -132,7 +140,7 @@ if __name__ == "__main__":
             padding="same",
             activation="relu",
             frame_size=(16, 16),
-            num_layers=1,
+            num_layers=4,
             input_seq_length=6,
             return_sequences=True,
         )

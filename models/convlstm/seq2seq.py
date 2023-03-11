@@ -1,15 +1,17 @@
-from typing import Tuple, Union, Optional
 import sys
+from typing import Optional, Tuple, Union
 
 import torch
 from torch import nn
 
 sys.path.append(".")
-from models.convlstm.convlstm import ConvLSTM
-from common.constans import WeightsInitializer
+from common.constants import WeightsInitializer  # noqa: E402
+from models.convlstm.convlstm import ConvLSTM  # noqa: E402
 
 
 class Seq2Seq(nn.Module):
+    """The sequence to sequence model implimentation using ConvLSTM."""
+
     def __init__(
         self,
         num_channels: int,
@@ -24,16 +26,16 @@ class Seq2Seq(nn.Module):
         weights_initializer: Optional[str] = WeightsInitializer.Zeros.value,
         return_sequences: bool = False,
     ) -> None:
-        """Initialize SeqtoSeq
+        """
 
         Args:
-            num_channels (int): [Number of input channels]
-            kernel_size (int): [kernel size]
-            num_kernels (int): [Number of kernels]
-            padding (Union[str, Tuple]): ['same', 'valid' or (int, int)]
-            activation (str): [the name of activation function]
-            frame_size (Tuple): [height and width]
-            num_layers (int): [the number of layers]
+            num_channels (int): Number of input channels.
+            kernel_size (int): kernel size.
+            num_kernels (int): Number of kernels.
+            padding (Union[str, Tuple]): 'same', 'valid' or (int, int)
+            activation (str): the name of activation function.
+            frame_size (Tuple): height and width.
+            num_layers (int): the number of layers.
         """
         super(Seq2Seq, self).__init__()
         self.num_channels = num_channels
@@ -54,45 +56,43 @@ class Seq2Seq(nn.Module):
         self.sequential.add_module(
             "convlstm1",
             ConvLSTM(
-                in_channels=self.num_channels,
-                out_channels=self.num_kernels,
-                kernel_size=self.kernel_size,
-                padding=self.padding,
-                activation=self.activation,
-                frame_size=self.frame_size,
-                weights_initializer=self.weights_initializer,
+                in_channels=num_channels,
+                out_channels=num_kernels,
+                kernel_size=kernel_size,
+                padding=padding,
+                activation=activation,
+                frame_size=frame_size,
+                weights_initializer=weights_initializer,
             ),
         )
 
         self.sequential.add_module(
             "layernorm1",
-            nn.LayerNorm([self.num_kernels, self.input_seq_length, *self.frame_size]),
+            nn.LayerNorm([num_kernels, self.input_seq_length, *self.frame_size]),
         )
 
         # Add the rest of the layers
-        for layer_idx in range(2, self.num_layers + 1):
+        for layer_idx in range(2, num_layers + 1):
             self.sequential.add_module(
                 f"convlstm{layer_idx}",
                 ConvLSTM(
-                    in_channels=self.num_kernels,
-                    out_channels=self.num_kernels,
-                    kernel_size=self.kernel_size,
-                    padding=self.padding,
-                    activation=self.activation,
-                    frame_size=self.frame_size,
-                    weights_initializer=self.weights_initializer,
+                    in_channels=num_kernels,
+                    out_channels=num_kernels,
+                    kernel_size=kernel_size,
+                    padding=padding,
+                    activation=activation,
+                    frame_size=frame_size,
+                    weights_initializer=weights_initializer,
                 ),
             )
 
             self.sequential.add_module(
                 f"layernorm{layer_idx}",
-                nn.LayerNorm(
-                    [self.num_kernels, self.input_seq_length, *self.frame_size]
-                ),
+                nn.LayerNorm([num_kernels, self.input_seq_length, *self.frame_size]),
             )
 
         self.sequential.add_module(
-            f"conv3d",
+            "conv3d",
             nn.Conv3d(
                 in_channels=self.num_kernels,
                 out_channels=self.out_channels,

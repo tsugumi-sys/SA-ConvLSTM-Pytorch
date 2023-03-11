@@ -1,15 +1,17 @@
-from typing import Tuple, Union, Optional
 import sys
+from typing import Optional, Tuple, Union
 
 import torch
 from torch import nn
 
 sys.path.append(".")
-from models.self_attention_convlstm.sa_convlstm_cell import SAConvLSTMCell
-from common.constans import DEVICE, WeightsInitializer
+from common.constants import DEVICE, WeightsInitializer  # noqa: E402
+from models.self_attention_convlstm.sa_convlstm_cell import SAConvLSTMCell  # noqa: E402
 
 
 class SAConvLSTM(nn.Module):
+    """Base Self-Attention ConvLSTM implementation (Lin et al., 2020)."""
+
     def __init__(
         self,
         attention_hidden_dims: int,
@@ -34,6 +36,8 @@ class SAConvLSTM(nn.Module):
             weights_initializer,
         )
 
+        self.attention_scores = None
+        self.in_channels = in_channels
         self.out_channels = out_channels
 
     def forward(
@@ -43,6 +47,12 @@ class SAConvLSTM(nn.Module):
         cell: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         batch_size, _, seq_len, height, width = X.size()
+
+        # NOTE: Cannot store all attention scores because of memory. So only store attention map of the center.
+        # And the same attention score are applyed to each channels.
+        self.attention_scores = torch.zeros(
+            (batch_size, seq_len, height * width), device=DEVICE
+        )
 
         if h is None:
             h = torch.zeros(
@@ -59,8 +69,11 @@ class SAConvLSTM(nn.Module):
         )
 
         for time_step in range(seq_len):
-            h, cell = self.sa_convlstm_cell(X[:, :, time_step], h, cell)
+            h, cell, attention = self.sa_convlstm_cell(X[:, :, time_step], h, cell)
 
             output[:, :, time_step] = h  # type: ignore
+            self.attention_scores[:, time_step] = attention[
+                :, attention.size(0) // 2
+            ]  # attention shape is (batch_size, height*width, height*width)
 
         return output
