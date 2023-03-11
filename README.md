@@ -47,5 +47,5 @@
 
 ![sa-convlstm](fig/sa-convlstm.png)
 
-The above figure is SAM-ConvLSTM formulation process. alpha_{h} in is used for
-visualizing attention maps in evaluation (`evaluate/`).
+The above figure is SAM-ConvLSTM formulation process. alpha_{h} in the figure is
+used for visualizing attention maps in evaluation (`evaluate/`).
