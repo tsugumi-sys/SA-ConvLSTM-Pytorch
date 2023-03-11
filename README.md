@@ -11,7 +11,7 @@
   `self attention module`. In the paper, the model uses
   `self attention memory module` is called as `SA-ConvLSTM`.
 
-# Directories
+## Directories
 
 - `models/`
   - `convlstm_cell/`
@@ -42,3 +42,10 @@
       - Self-Attention memory ConvLSTM implementation.
     - `sam_seq2seq.py`
       - Sequence to sequence model based on Self-Attention memory ConvLSTM.
+
+## Vizualized Attention Maps
+
+![sa-convlstm](fig/sa-convlstm.png)
+
+The above figure is SAM-ConvLSTM formulation process. alpha_{h} in is used for
+visualizing attention maps in evaluation (`evaluate/`).
