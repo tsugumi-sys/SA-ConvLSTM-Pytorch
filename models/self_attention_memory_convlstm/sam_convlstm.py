@@ -80,8 +80,11 @@ class SAMConvLSTM(nn.Module):
             )
 
             output[:, :, time_step] = h  # type: ignore
+            # Save attention maps of the center point because storing
+            # the full `attention_h` is difficult because of the lot of memory usage.
+            # `attention_h` shape is (batch_size, height*width, height*width)
             self.attention_scores[:, time_step] = attention_h[
                 :, attention_h.size(0) // 2
-            ]  # attention_h shape is (batch_size, height*width, height*width)
+            ]
 
         return output

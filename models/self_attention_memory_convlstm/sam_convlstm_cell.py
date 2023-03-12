@@ -6,7 +6,6 @@ import torch
 sys.path.append(".")
 from common.constants import DEVICE, WeightsInitializer  # noqa: E402
 from models.convlstm_cell.convlstm_cell import BaseConvLSTMCell  # noqa: E402
-from models.self_attention_convlstm.self_attention import SelfAttention  # noqa: E402
 from models.self_attention_memory_convlstm.self_attention_memory_module import (  # noqa: E402
     SelfAttentionMemory,
 )
@@ -34,7 +33,6 @@ class SAMConvLSTMCell(BaseConvLSTMCell):
             weights_initializer,
         )
 
-        self.attention_x = SelfAttention(in_channels, attention_hidden_dims)
         self.attention_memory = SelfAttentionMemory(out_channels, attention_hidden_dims)
 
     def forward(

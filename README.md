@@ -48,4 +48,9 @@
 ![sa-convlstm](fig/sa-convlstm.png)
 
 The above figure is SAM-ConvLSTM formulation process. alpha_{h} in the figure is
-used for visualizing attention maps in evaluation (`evaluate/`).
+used for visualizing attention maps in evaluation (`evaluate/`). Also see the
+following files for all calculation process.
+
+- `models/self_attention_memory_convlstm/sam_convlstm_cell.py`
+- `models/self_attention_memory_convlstm/sam_convlstm.py`
+- `models/self_attention_memory_convlstm/self_attention_memory_module.py`
