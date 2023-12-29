@@ -1,12 +1,10 @@
-import sys
 from typing import Optional, Tuple, Union
 
 import torch
 
-sys.path.append(".")
-from common.constants import WeightsInitializer  # noqa: E402
-from models.convlstm_cell.convlstm_cell import BaseConvLSTMCell  # noqa: E402
-from models.self_attention_convlstm.self_attention import (  # noqa: E402
+from core.constants import WeightsInitializer
+from core.convlstm_cell import BaseConvLSTMCell
+from self_attention_convlstm.self_attention import (
     SelfAttention,
 )
 

@@ -39,7 +39,7 @@ class MovingMNIST(VisionDataset):
     ) -> None:
         super().__init__(root, transform=transform, target_transform=target_transform)
 
-        if input_seq_length > 19 or 1 > input_seq_length:
+        if input_seq_length > 19 or input_seq_length < 1:
             raise ValueError(
                 "input_seq_length should be in the range of (1, 19) because the original sequence length is 20."
             )

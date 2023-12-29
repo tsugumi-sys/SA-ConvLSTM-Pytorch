@@ -1,5 +1,4 @@
 import os
-from typing import Callable
 
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
@@ -65,7 +64,7 @@ class Evaluator:
 
         # NOTE: attention maps shape is (batch_size=1, frames, height * width)
         # Extracted only center attention map because of memory usage.
-        for (layer_name, attention_maps) in get_attention_maps().items():
+        for layer_name, attention_maps in get_attention_maps().items():
             layer_name = layer_name.split(".")[-1]
             save_dir = os.path.join(
                 self.save_dir_path,

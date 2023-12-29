@@ -1,11 +1,9 @@
-import sys
 from typing import Optional, Tuple, Union
 
 import torch
 from torch import nn
 
-sys.path.append(".")
-from common.constants import DEVICE, WeightsInitializer  # noqa: E402
+from core.constants import DEVICE, WeightsInitializer
 
 
 class BaseConvLSTMCell(nn.Module):
@@ -31,7 +29,7 @@ class BaseConvLSTMCell(nn.Module):
             activation (str): Name of activation function
             frame_size (Tuple): height and width
         """
-        super(BaseConvLSTMCell, self).__init__()
+        super().__init__()
 
         if activation == "tanh":
             self.activation = torch.tanh

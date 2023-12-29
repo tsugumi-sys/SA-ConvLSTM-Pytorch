@@ -6,7 +6,7 @@ from torch import nn
 
 class SelfAttentionMemory(nn.Module):
     def __init__(self, input_dim: int, hidden_dim: int) -> None:
-        super(SelfAttentionMemory, self).__init__()
+        super().__init__()
 
         # attention for hidden layer
         self.query_h = nn.Conv2d(input_dim, hidden_dim, 1, padding="same")
@@ -43,7 +43,9 @@ class SelfAttentionMemory(nn.Module):
         q_h = q_h.view(batch_size, self.hidden_dim, H * W).transpose(1, 2)
         v_h = v_h.view(batch_size, self.input_dim, H * W)
 
-        attention_h = torch.softmax(torch.bmm(q_h, k_h), dim=-1)  # The shape is (batch_size, H*W, H*W)
+        attention_h = torch.softmax(
+            torch.bmm(q_h, k_h), dim=-1
+        )  # The shape is (batch_size, H*W, H*W)
         z_h = torch.matmul(attention_h, v_h.permute(0, 2, 1))
         z_h = z_h.transpose(1, 2).view(batch_size, self.input_dim, H, W)
         z_h = self.z_h(z_h)

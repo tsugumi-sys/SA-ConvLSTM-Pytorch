@@ -1,12 +1,10 @@
-import sys
 from typing import Optional, Tuple, Union
 
 import torch
 from torch import nn
 
-sys.path.append(".")
-from common.constants import DEVICE, WeightsInitializer  # noqa: E402
-from models.convlstm_cell.convlstm_cell import BaseConvLSTMCell  # noqa: E402
+from core.constants import DEVICE, WeightsInitializer
+from core.convlstm_cell import BaseConvLSTMCell
 
 
 class ConvLSTM(nn.Module):
@@ -32,7 +30,7 @@ class ConvLSTM(nn.Module):
             activation (str): Name of activation function.
             frame_size (Tuple): height and width.
         """
-        super(ConvLSTM, self).__init__()
+        super().__init__()
 
         self.ConvLSTMCell = BaseConvLSTMCell(
             in_channels,

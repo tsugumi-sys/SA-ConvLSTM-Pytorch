@@ -1,11 +1,9 @@
-import sys
 from typing import Callable
 
 import numpy as np
 from torch import nn
 
-sys.path.append(".")
-from train.utils.utils import save_seq2seq_model  # noqa: E402
+from pipeline.utils.trainer_utils import save_seq2seq_model
 
 
 class EarlyStopping:

@@ -1,20 +1,17 @@
-import sys
 from typing import Optional, Tuple, Union
 
 import torch
 from torch import nn
 
-sys.path.append(".")
-from common.constants import WeightsInitializer  # noqa: E402
-from models.self_attention_convlstm.sa_convlstm import SAConvLSTM  # noqa: E402
+from convlstm.model import ConvLSTM
+from core.constants import WeightsInitializer
 
 
-class SASeq2Seq(nn.Module):
-    """The sequence to sequence model implementation using Base Self-Attention ConvLSTM."""
+class Seq2Seq(nn.Module):
+    """The sequence to sequence model implimentation using ConvLSTM."""
 
     def __init__(
         self,
-        attention_hidden_dims: int,
         num_channels: int,
         kernel_size: Union[int, Tuple],
         num_kernels: int,
@@ -30,16 +27,15 @@ class SASeq2Seq(nn.Module):
         """
 
         Args:
-            num_channels (int): [Number of input channels]
-            kernel_size (int): [kernel size]
-            num_kernels (int): [Number of kernels]
-            padding (Union[str, Tuple]): ['same', 'valid' or (int, int)]
-            activation (str): [the name of activation function]
-            frame_size (Tuple): [height and width]
-            num_layers (int): [the number of layers]
+            num_channels (int): Number of input channels.
+            kernel_size (int): kernel size.
+            num_kernels (int): Number of kernels.
+            padding (Union[str, Tuple]): 'same', 'valid' or (int, int)
+            activation (str): the name of activation function.
+            frame_size (Tuple): height and width.
+            num_layers (int): the number of layers.
         """
-        super(SASeq2Seq, self).__init__()
-        self.attention_hidden_dims = attention_hidden_dims
+        super().__init__()
         self.num_channels = num_channels
         self.kernel_size = kernel_size
         self.num_kernels = num_kernels
@@ -56,9 +52,8 @@ class SASeq2Seq(nn.Module):
 
         # Add first layer (Different in_channels than the rest)
         self.sequential.add_module(
-            "sa_convlstm1",
-            SAConvLSTM(
-                attention_hidden_dims=self.attention_hidden_dims,
+            "convlstm1",
+            ConvLSTM(
                 in_channels=num_channels,
                 out_channels=num_kernels,
                 kernel_size=kernel_size,
@@ -77,9 +72,8 @@ class SASeq2Seq(nn.Module):
         # Add the rest of the layers
         for layer_idx in range(2, num_layers + 1):
             self.sequential.add_module(
-                f"sa_convlstm{layer_idx}",
-                SAConvLSTM(
-                    attention_hidden_dims=self.attention_hidden_dims,
+                f"convlstm{layer_idx}",
+                ConvLSTM(
                     in_channels=num_kernels,
                     out_channels=num_kernels,
                     kernel_size=kernel_size,
@@ -116,36 +110,24 @@ class SASeq2Seq(nn.Module):
 
         return output[:, :, -1:, ...]
 
-    def get_attention_maps(self):
-        # get all sa_convlstm module
-        sa_convlstm_modules = [
-            (name, module)
-            for name, module in self.named_modules()
-            if module.__class__.__name__ == "SAConvLSTM"
-        ]
-        return {
-            name: module.attention_scores for name, module in sa_convlstm_modules
-        }  # attention scores shape is (batch_size, seq_length, height * width)
-
 
 if __name__ == "__main__":
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     input_X = torch.rand((5, 3, 6, 16, 16), dtype=torch.float, device=DEVICE)
-    model = (
-        SASeq2Seq(
-            attention_hidden_dims=4,
+    convlstm = (
+        Seq2Seq(
             num_channels=3,
             kernel_size=3,
             num_kernels=4,
             padding="same",
             activation="relu",
             frame_size=(16, 16),
-            num_layers=4,
+            num_layers=3,
             input_seq_length=6,
             return_sequences=True,
         )
         .to(DEVICE)
         .to(torch.float)
     )
-    y = model.forward(input_X)
+    y = convlstm.forward(input_X)
     print(y.shape)
