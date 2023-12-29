@@ -4,19 +4,17 @@ Pytorch implementation of [Self-Attention ConvLSTM for Spatiotemporal Prediction
 
 (testing on MovingMNIST)
 
-## NOTE
-
 ## Directories
 
-### `convlstm/`
+## `convlstm/`
 
 ConvLSTM cell implementation based on [Convolutional LSTM Network: A Machine Learning Approach for Precipitation Nowcasting](https://paperswithcode.com/paper/convolutional-lstm-network-a-machine-learning).
 
-### `self_attention_convlstm/`
+## `self_attention_convlstm/`
 
 Self Attention ConvLSTM cell implementation based on [Self-Attention ConvLSTM for Spatiotemporal Prediction](https://ojs.aaai.org/index.php/AAAI/article/view/6819/6673).
 
-### `self_attention_memory_convlstm/`
+## `self_attention_memory_convlstm/`
 
 Self-Attention memory ConvLSTM implementation based on [Self-Attention ConvLSTM for Spatiotemporal Prediction](https://ojs.aaai.org/index.php/AAAI/article/view/6819/6673).
 
