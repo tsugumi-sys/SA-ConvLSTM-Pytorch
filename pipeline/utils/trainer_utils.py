@@ -1,5 +1,4 @@
 import os
-import sys
 from typing import List
 
 import matplotlib.pyplot as plt
@@ -8,10 +7,10 @@ import seaborn as sns
 import torch
 from torch import nn
 
-sys.path.append(".")
-from models.convlstm.seq2seq import Seq2Seq  # noqa: E402
-from models.self_attention_convlstm.sa_seq2seq import SASeq2Seq  # noqa: E402
-from models.self_attention_memory_convlstm.sam_seq2seq import SAMSeq2Seq  # noqa: E402
+# TODO: consider place saving function into each models directory.
+from convlstm.seq2seq import Seq2Seq
+from self_attention_convlstm.seq2seq import SASeq2Seq
+from self_attention_memory_convlstm.seq2seq import SAMSeq2Seq
 
 
 def save_learning_curve_plot(
@@ -81,7 +80,7 @@ def save_seq2seq_model(model: nn.Module, save_path: str) -> None:
             },
             save_path,
         )
-    elif isinstance(model, SASeq2Seq) or isinstance(model, SAMSeq2Seq):
+    elif isinstance(model, (SASeq2Seq, SAMSeq2Seq)):
         torch.save(
             {
                 "model_state_dict": model.state_dict(),

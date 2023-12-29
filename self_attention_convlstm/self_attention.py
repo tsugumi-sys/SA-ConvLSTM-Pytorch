@@ -1,18 +1,16 @@
-import sys
 from typing import Tuple
 
 import torch
 from torch import nn
 
-sys.path.append(".")
-from common.constants import DEVICE  # noqa: E402
+from core.constants import DEVICE
 
 
 class SelfAttention(nn.Module):
     """Self-Attention module implementation."""
 
     def __init__(self, input_dim: int, hidden_dim: int) -> None:
-        super(SelfAttention, self).__init__()
+        super().__init__()
         self.query_h = nn.Conv2d(
             input_dim, hidden_dim, 1, padding="same", device=DEVICE
         )

@@ -1,15 +1,15 @@
-from typing import Union, Tuple, Optional
+from typing import Optional, Tuple, Union
+
 import torch
 from torch import nn
 
-import sys
-
-sys.path.append(".")
-from common.constants import WeightsInitializer  # noqa: E402
-from models.self_attention_memory_convlstm.sam_convlstm import SAMConvLSTM  # noqa: E402
+from core.constants import WeightsInitializer
+from self_attention_convlstm.model import SAConvLSTM
 
 
-class SAMSeq2Seq(nn.Module):
+class SASeq2Seq(nn.Module):
+    """The sequence to sequence model implementation using Base Self-Attention ConvLSTM."""
+
     def __init__(
         self,
         attention_hidden_dims: int,
@@ -22,10 +22,21 @@ class SAMSeq2Seq(nn.Module):
         num_layers: int,
         input_seq_length: int,
         out_channels: Optional[int] = None,
-        weights_initializer: Optional[str] = WeightsInitializer.Zeros,
+        weights_initializer: Optional[str] = WeightsInitializer.Zeros.value,
         return_sequences: bool = False,
-    ):
-        super(SAMSeq2Seq, self).__init__()
+    ) -> None:
+        """
+
+        Args:
+            num_channels (int): [Number of input channels]
+            kernel_size (int): [kernel size]
+            num_kernels (int): [Number of kernels]
+            padding (Union[str, Tuple]): ['same', 'valid' or (int, int)]
+            activation (str): [the name of activation function]
+            frame_size (Tuple): [height and width]
+            num_layers (int): [the number of layers]
+        """
+        super().__init__()
         self.attention_hidden_dims = attention_hidden_dims
         self.num_channels = num_channels
         self.kernel_size = kernel_size
@@ -41,17 +52,18 @@ class SAMSeq2Seq(nn.Module):
 
         self.sequential = nn.Sequential()
 
+        # Add first layer (Different in_channels than the rest)
         self.sequential.add_module(
-            "sam-convlstm1",
-            SAMConvLSTM(
+            "sa_convlstm1",
+            SAConvLSTM(
                 attention_hidden_dims=self.attention_hidden_dims,
-                in_channels=self.num_channels,
-                out_channels=self.num_kernels,
-                kernel_size=self.kernel_size,
-                padding=self.padding,
-                activation=self.activation,
-                frame_size=self.frame_size,
-                weights_initializer=self.weights_initializer,
+                in_channels=num_channels,
+                out_channels=num_kernels,
+                kernel_size=kernel_size,
+                padding=padding,
+                activation=activation,
+                frame_size=frame_size,
+                weights_initializer=weights_initializer,
             ),
         )
 
@@ -60,20 +72,22 @@ class SAMSeq2Seq(nn.Module):
             nn.LayerNorm([num_kernels, self.input_seq_length, *self.frame_size]),
         )
 
+        # Add the rest of the layers
         for layer_idx in range(2, num_layers + 1):
             self.sequential.add_module(
-                f"sam-convlstm{layer_idx}",
-                SAMConvLSTM(
+                f"sa_convlstm{layer_idx}",
+                SAConvLSTM(
                     attention_hidden_dims=self.attention_hidden_dims,
-                    in_channels=self.num_kernels,
-                    out_channels=self.num_kernels,
-                    kernel_size=self.kernel_size,
-                    padding=self.padding,
-                    activation=self.activation,
-                    frame_size=self.frame_size,
-                    weights_initializer=self.weights_initializer,
+                    in_channels=num_kernels,
+                    out_channels=num_kernels,
+                    kernel_size=kernel_size,
+                    padding=padding,
+                    activation=activation,
+                    frame_size=frame_size,
+                    weights_initializer=weights_initializer,
                 ),
             )
+
             self.sequential.add_module(
                 f"layernorm{layer_idx}",
                 nn.LayerNorm([num_kernels, self.input_seq_length, *self.frame_size]),
@@ -91,23 +105,24 @@ class SAMSeq2Seq(nn.Module):
 
         self.sequential.add_module("sigmoid", nn.Sigmoid())
 
-    def forward(self, X: torch.Tensor) -> torch.Tensor:
+    def forward(self, X: torch.Tensor):
+        # Forward propagation through all the layers
         output = self.sequential(X)
 
         if self.return_sequences is True:
             return output
 
-        return output[:, :, -1:, :, :]
+        return output[:, :, -1:, ...]
 
     def get_attention_maps(self):
         # get all sa_convlstm module
-        sam_convlstm_modules = [
+        sa_convlstm_modules = [
             (name, module)
             for name, module in self.named_modules()
-            if module.__class__.__name__ == "SAMConvLSTM"
+            if module.__class__.__name__ == "SAConvLSTM"
         ]
         return {
-            name: module.attention_scores for name, module in sam_convlstm_modules
+            name: module.attention_scores for name, module in sa_convlstm_modules
         }  # attention scores shape is (batch_size, seq_length, height * width)
 
 
@@ -115,7 +130,7 @@ if __name__ == "__main__":
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     input_X = torch.rand((5, 3, 6, 16, 16), dtype=torch.float, device=DEVICE)
     model = (
-        SAMSeq2Seq(
+        SASeq2Seq(
             attention_hidden_dims=4,
             num_channels=3,
             kernel_size=3,

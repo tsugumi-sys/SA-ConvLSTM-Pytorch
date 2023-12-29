@@ -1,0 +1,5 @@
+torch
+torchvision
+pandas
+numpy
+seaborn

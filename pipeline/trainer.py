@@ -1,4 +1,3 @@
-import sys
 from typing import Callable, Dict, Tuple
 
 import pandas as pd
@@ -8,8 +7,7 @@ from torch.nn.modules.loss import _Loss
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
-sys.path.append(".")
-from train.early_stopping import EarlyStopping  # noqa: E402
+from pipeline.utils.early_stopping import EarlyStopping
 
 
 class Trainer:
