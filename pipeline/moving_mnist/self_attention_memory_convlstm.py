@@ -1,9 +1,7 @@
-import torch
 from torch import nn
 from torch.optim import Adam
-from torch.utils.data import DataLoader, random_split
 
-from pipeline.data_loader.moving_mnist import MovingMNIST
+from pipeline.data_loader.moving_mnist import MovingMNISTDataLoaders
 from pipeline.evaluator import Evaluator
 from pipeline.trainer import Trainer
 from pipeline.utils.early_stopping import EarlyStopping
@@ -36,16 +34,9 @@ def main():
     ###
     # Dataset and DataLoader
     ###
-    moving_mnist = MovingMNIST(root="./data", input_seq_length=10, download=True)
-    train_dataset, valid_dataset, test_dataset = random_split(
-        moving_mnist, [0.7, 0.299, 0.001], generator=torch.Generator().manual_seed(42)
+    data_loaders = MovingMNISTDataLoaders(
+        train_batch_size, input_frames=input_seq_length
     )
-
-    train_dataloader = DataLoader(
-        train_dataset, batch_size=train_batch_size, shuffle=True
-    )
-    valid_dataloader = DataLoader(valid_dataset, batch_size=len(valid_dataset))
-    test_dataloader = DataLoader(test_dataset, batch_size=1)
 
     ###
     # Model, Loss function and Optimizer, e.t.c
@@ -80,8 +71,8 @@ def main():
         save_model_path="./tmp",
         model=model,
         train_epochs=train_epochs,
-        train_dataloader=train_dataloader,
-        valid_dataloader=valid_dataloader,
+        train_dataloader=data_loaders.train_dataloader,
+        valid_dataloader=data_loaders.valid_dataloader,
         loss_criterion=loss_criterion,
         accuracy_criterion=acc_criterion,
         optimizer=optimizer,
@@ -94,7 +85,9 @@ def main():
     # Evaluation
     ###
     evaluator = Evaluator(
-        model=None, test_dataloader=test_dataloader, save_dir_path="./tmp/evaluate"
+        model=None,
+        test_dataloader=data_loaders.test_dataloader,
+        save_dir_path="./tmp/evaluate",
     )
     evaluator.run()
 
