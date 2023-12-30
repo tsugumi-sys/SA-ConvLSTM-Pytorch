@@ -39,7 +39,7 @@ def main():
     )
 
     ###
-    # Model, Loss function and Optimizer, e.t.c
+    # Setup training
     ###
     loss_criterion = nn.MSELoss()
     acc_criterion = nn.L1Loss()
