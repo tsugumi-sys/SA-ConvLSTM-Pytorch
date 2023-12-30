@@ -32,7 +32,7 @@ def main():
     out_channels = 1
 
     ###
-    # Dataset and DataLoader
+    # DatLoaders
     ###
     data_loaders = MovingMNISTDataLoaders(
         train_batch_size, input_frames=input_seq_length
