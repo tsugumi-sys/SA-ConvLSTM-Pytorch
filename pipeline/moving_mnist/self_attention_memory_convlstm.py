@@ -32,14 +32,14 @@ def main():
     out_channels = 1
 
     ###
-    # Dataset and DataLoader
+    # DatLoaders
     ###
     data_loaders = MovingMNISTDataLoaders(
         train_batch_size, input_frames=input_seq_length
     )
 
     ###
-    # Model, Loss function and Optimizer, e.t.c
+    # Setup training
     ###
     loss_criterion = nn.MSELoss()
     acc_criterion = nn.L1Loss()
@@ -65,7 +65,7 @@ def main():
     )
 
     ###
-    # Train
+    # Training
     ###
     trainer = Trainer(
         save_model_path="./tmp",
