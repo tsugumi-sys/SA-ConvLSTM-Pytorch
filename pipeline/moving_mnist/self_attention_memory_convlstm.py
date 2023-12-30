@@ -65,7 +65,7 @@ def main():
     )
 
     ###
-    # Train
+    # Training
     ###
     trainer = Trainer(
         save_model_path="./tmp",
