@@ -10,7 +10,6 @@ Pytorch implementation of [Self-Attention ConvLSTM for Spatiotemporal Prediction
 
 ```bash
 python -m pipeline.moving_mnist.self_attention_memory_convlstm
-  
 ```
 
 ## Directories
