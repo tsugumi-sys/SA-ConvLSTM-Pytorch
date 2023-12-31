@@ -5,9 +5,6 @@ from pipeline.data_loader.moving_mnist import MovingMNISTDataLoaders
 from pipeline.evaluator import Evaluator
 from pipeline.trainer import Trainer
 from pipeline.utils.early_stopping import EarlyStopping
-
-# from models.convlstm.seq2seq import Seq2Seq
-# from models.self_attention_convlstm.sa_seq2seq import SASeq2Seq
 from self_attention_memory_convlstm.seq2seq import SAMSeq2Seq
 
 
