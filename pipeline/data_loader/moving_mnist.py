@@ -14,8 +14,8 @@ class VideoPredictionDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
-        input_frames = self.data[idx][: self.input_frames, :, :, :]
-        label_frames = self.data[idx][self.input_frames :, :, :, :]
+        input_frames = self.data[idx][: self.input_frames, :, :, :].to(torch.float32)
+        label_frames = self.data[idx][self.input_frames :, :, :, :].to(torch.float32)
         return (
             torch.swapaxes(input_frames, 0, 1),
             torch.swapaxes(label_frames, 0, 1),
