@@ -4,6 +4,15 @@ Pytorch implementation of [Self-Attention ConvLSTM for Spatiotemporal Prediction
 
 (testing on MovingMNIST)
 
+## Examples
+
+### Training and Evaluation of Self-Attention ConvLSTM
+
+```bash
+python -m pipeline.moving_mnist.self_attention_memory_convlstm
+  
+```
+
 ## Directories
 
 ## `convlstm/`
