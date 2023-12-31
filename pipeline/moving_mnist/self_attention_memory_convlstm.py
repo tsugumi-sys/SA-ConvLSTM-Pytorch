@@ -16,16 +16,16 @@ def main():
     # Parameters
     ###
     train_epochs = 1
-    train_batch_size = 8
+    train_batch_size = 1
 
-    attention_hidden_dims = 4
+    attention_hidden_dims = 1
     num_channels = 1
     kernel_size = 3
-    num_kernels = 64
+    num_kernels = 1
     padding = "same"
     activation = "relu"
     frame_size = (64, 64)
-    num_layers = 4
+    num_layers = 1
     input_seq_length = 10
     weights_initializer = "he"
     return_sequences = True
@@ -34,6 +34,7 @@ def main():
     ###
     # DatLoaders
     ###
+    print("Loading dataset ...")
     data_loaders = MovingMNISTDataLoaders(
         train_batch_size, input_frames=input_seq_length
     )
@@ -67,6 +68,7 @@ def main():
     ###
     # Training
     ###
+    print("Training Self Attention (Memory) ConvLSTM...")
     trainer = Trainer(
         save_model_path="./tmp",
         model=model,
@@ -84,6 +86,7 @@ def main():
     ###
     # Evaluation
     ###
+    print("Evaluating ...")
     evaluator = Evaluator(
         model=None,
         test_dataloader=data_loaders.test_dataloader,
