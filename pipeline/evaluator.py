@@ -9,6 +9,8 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
+from core.constants import DEVICE
+
 
 class Evaluator:
     def __init__(
@@ -25,11 +27,10 @@ class Evaluator:
 
     def run(self):
         with torch.no_grad():
-            for batch_idx, (input_frames, label_frames) in enumerate(
-                self.test_dataloader
-            ):
-                pred_frames = self.model(input_frames)
-                self.visualize_predlabel_frames(batch_idx, label_frames, pred_frames)
+            for batch_idx, (input, label) in enumerate(self.test_dataloader):
+                input, label = input.to(DEVICE), label.to(DEVICE)
+                pred_frames = self.model(input)
+                self.visualize_predlabel_frames(batch_idx, label, pred_frames)
                 self.visualize_attention_maps(batch_idx)
 
     def visualize_predlabel_frames(
