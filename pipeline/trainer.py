@@ -26,7 +26,7 @@ class Trainer:
         save_metrics_path: str,
     ) -> None:
         self.save_model_path = save_model_path
-        self.model = model
+        self.model = model.to(DEVICE)
         self.train_epochs = train_epochs
         self.train_dataloader = train_dataloader
         self.valid_dataloader = valid_dataloader
