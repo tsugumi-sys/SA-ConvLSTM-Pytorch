@@ -1,3 +1,5 @@
+import os
+
 from torch import nn
 from torch.optim import Adam
 
@@ -66,6 +68,7 @@ def main():
     # Training
     ###
     print("Training Self Attention (Memory) ConvLSTM...")
+    os.makedirs("./tmp", exist_ok=True)
     trainer = Trainer(
         save_model_path="./tmp",
         model=model,
