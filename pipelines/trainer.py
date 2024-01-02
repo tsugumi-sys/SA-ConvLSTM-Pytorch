@@ -78,11 +78,11 @@ class Trainer:
     def validation(self) -> Tuple[float, float]:
         self.model.eval()
         with torch.no_grad():
-            input, target = next(iter(self.valid_dataloader))
-            input, target = input.to(DEVICE), target.to(DEVICE)
-            output = self.model(input)
-            loss = self.loss_criterion(output.flatten(), target.flatten())
-            acc = self.accuracy_criterion(output.flatten(), target.flatten())
+            for input, target in self.valid_dataloader:
+                input, target = input.to(DEVICE), target.to(DEVICE)
+                output = self.model(input)
+                loss = self.loss_criterion(output.flatten(), target.flatten())
+                acc = self.accuracy_criterion(output.flatten(), target.flatten())
 
         return loss.item(), acc.item()
 

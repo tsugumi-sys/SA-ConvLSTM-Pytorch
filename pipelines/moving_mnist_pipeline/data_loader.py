@@ -48,9 +48,7 @@ class MovingMNISTDataLoaders:
 
     @property
     def valid_dataloader(self):
-        return DataLoader(
-            self.valid_dataset, batch_size=len(self.valid_dataset), shuffle=self.shuffle
-        )
+        return DataLoader(self.valid_dataset, batch_size=1, shuffle=self.shuffle)
 
     @property
     def test_dataloader(self):
