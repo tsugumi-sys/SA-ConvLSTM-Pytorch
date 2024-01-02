@@ -3,7 +3,7 @@ from typing import Callable
 import numpy as np
 from torch import nn
 
-from pipeline.utils.trainer_utils import save_seq2seq_model
+from pipelines.utils.trainer_utils import save_seq2seq_model
 
 
 class EarlyStopping:
@@ -20,7 +20,7 @@ class EarlyStopping:
         Args:
             patience (int, optional): How long to wait after last time validation loss improved. Defaults to 7.
             verbose (bool, optional): If True, prints a message for each validation loss improvement. Defaults to False.
-            delta (float, optional): Minumum change in the monitored quantity to qualify as an improvement. Defaults to 0.0.
+            delta (float, optional): Minimum change in the monitored quantity to qualify as an improvement. Defaults to 0.0.
             path (str, optional): Path for the checkpoint to be saved to. Defaults to "checkpoint.pt".
             trace_func (Callable, optional): trace print function. Defaults to print.
         """

@@ -8,7 +8,7 @@ from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
 from core.constants import DEVICE
-from pipeline.utils.early_stopping import EarlyStopping
+from pipelines.utils.early_stopping import EarlyStopping
 
 
 class Trainer:

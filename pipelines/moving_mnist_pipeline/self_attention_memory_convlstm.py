@@ -3,11 +3,11 @@ import os
 from torch import nn
 from torch.optim import Adam
 
-from convlstm.seq2seq import Seq2Seq
-from pipeline.data_loader.moving_mnist import MovingMNISTDataLoaders
-from pipeline.evaluator import Evaluator
-from pipeline.trainer import Trainer
-from pipeline.utils.early_stopping import EarlyStopping
+from pipelines.data_loader.moving_mnist import MovingMNISTDataLoaders
+from pipelines.evaluator import Evaluator
+from pipelines.trainer import Trainer
+from pipelines.utils.early_stopping import EarlyStopping
+from self_attention_memory_convlstm.seq2seq import SAMSeq2Seq
 
 
 def main():
@@ -17,6 +17,7 @@ def main():
     train_epochs = 1
     train_batch_size = 1
 
+    attention_hidden_dims = 1
     num_channels = 1
     kernel_size = 3
     num_kernels = 1
@@ -42,7 +43,8 @@ def main():
     ###
     loss_criterion = nn.MSELoss()
     acc_criterion = nn.L1Loss()
-    model = Seq2Seq(
+    model = SAMSeq2Seq(
+        attention_hidden_dims=attention_hidden_dims,
         num_channels=num_channels,
         kernel_size=kernel_size,
         num_kernels=num_kernels,
@@ -65,7 +67,7 @@ def main():
     ###
     # Training
     ###
-    print("Training ConvLSTM...")
+    print("Training Self Attention (Memory) ConvLSTM...")
     os.makedirs("./tmp", exist_ok=True)
     trainer = Trainer(
         save_model_path="./tmp",
@@ -86,7 +88,7 @@ def main():
     ###
     print("Evaluating ...")
     evaluator = Evaluator(
-        model=model,
+        model=None,
         test_dataloader=data_loaders.test_dataloader,
         save_dir_path="./tmp/evaluate",
     )

@@ -10,12 +10,12 @@
 ### Training and Evaluation of Self-Attention ConvLSTM (with memory module)
 
 ```bash
-python -m pipeline.moving_mnist.self_attention_memory_convlstm
+python -m pipelines.moving_mnist_pipeline.self_attention_memory_convlstm
 ```
 
 ### Training and Evaluation of Self-Attention ConvLSTM
 ```bash
-python -m pipeline.moving_mnist.convlstm
+python -m pipelines.moving_mnist_pipeline.convlstm
 ```
 
 ## Directories
