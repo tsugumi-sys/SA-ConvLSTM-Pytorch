@@ -7,6 +7,7 @@ from torch.nn.modules.loss import _Loss
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
+from core.constants import DEVICE
 from pipeline.utils.early_stopping import EarlyStopping
 
 
@@ -45,8 +46,9 @@ class Trainer:
             train_loss = 0
             self.model.train()
             for _, (input, target) in enumerate(self.train_dataloader, start=1):
-                output = self.model(input)
+                input, target = input.to(DEVICE), target.to(DEVICE)
 
+                output = self.model(input)
                 loss = self.loss_criterion(output.flatten(), target.flatten())
 
                 self.optimizer.zero_grad()
