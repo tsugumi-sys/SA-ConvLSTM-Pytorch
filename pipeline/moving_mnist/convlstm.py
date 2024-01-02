@@ -1,3 +1,5 @@
+import os
+
 from torch import nn
 from torch.optim import Adam
 
@@ -64,6 +66,7 @@ def main():
     # Training
     ###
     print("Training ConvLSTM...")
+    os.makedirs("./tmp", exist_ok=True)
     trainer = Trainer(
         save_model_path="./tmp",
         model=model,
@@ -83,7 +86,7 @@ def main():
     ###
     print("Evaluating ...")
     evaluator = Evaluator(
-        model=None,
+        model=model,
         test_dataloader=data_loaders.test_dataloader,
         save_dir_path="./tmp/evaluate",
     )
