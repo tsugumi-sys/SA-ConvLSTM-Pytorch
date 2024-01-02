@@ -47,6 +47,7 @@ class BaseConvLSTMCell(nn.Module):
             out_channels=4 * out_channels,
             kernel_size=kernel_size,
             padding=padding,
+            device=DEVICE,
         )
 
         self.W_ci = nn.parameter.Parameter(
@@ -70,7 +71,7 @@ class BaseConvLSTMCell(nn.Module):
             nn.init.xavier_normal_(self.W_co, gain=1.0)
             nn.init.xavier_normal_(self.W_cf, gain=1.0)
         else:
-            raise ValueError(f"Invlaid weights Initializer: {weights_initializer}")
+            raise ValueError(f"Invalid weights Initializer: {weights_initializer}")
 
     def forward(
         self, X: torch.Tensor, prev_h: torch.Tensor, prev_cell: torch.Tensor
@@ -81,7 +82,7 @@ class BaseConvLSTMCell(nn.Module):
     def convlstm_cell(
         self, X: torch.Tensor, prev_h: torch.Tensor, prev_cell: torch.Tensor
     ):
-        """ConvLSTM cell calclation.
+        """ConvLSTM cell calculation.
 
         Args:
             X (torch.Tensor): input data.
