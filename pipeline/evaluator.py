@@ -16,12 +16,14 @@ class Evaluator:
         model: nn.Module,
         test_dataloader: DataLoader,
         save_dir_path: str,
+        save_attention_maps: bool = False,
     ):
         self.model = model
         self.test_dataloader = test_dataloader
 
         os.makedirs(save_dir_path, exist_ok=True)
         self.save_dir_path = save_dir_path
+        self.save_attention_maps = save_attention_maps
 
     def run(self):
         with torch.no_grad():
@@ -30,7 +32,8 @@ class Evaluator:
             ):
                 pred_frames = self.model(input_frames)
                 self.visualize_predlabel_frames(batch_idx, label_frames, pred_frames)
-                self.visualize_attention_maps(batch_idx)
+                if self.save_attention_maps:
+                    self.visualize_attention_maps(batch_idx)
 
     def visualize_predlabel_frames(
         self, batch_idx: int, label_frames: torch.Tensor, pred_frames: torch.Tensor
