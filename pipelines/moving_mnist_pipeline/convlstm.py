@@ -4,8 +4,8 @@ from torch import nn
 from torch.optim import Adam
 
 from convlstm.seq2seq import Seq2Seq
-from pipelines.data_loader.moving_mnist import MovingMNISTDataLoaders
 from pipelines.evaluator import Evaluator
+from pipelines.moving_mnist_pipeline.data_loader import MovingMNISTDataLoaders
 from pipelines.trainer import Trainer
 from pipelines.utils.early_stopping import EarlyStopping
 
