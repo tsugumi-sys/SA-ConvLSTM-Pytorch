@@ -70,7 +70,6 @@ def main():
     print("Training Self Attention (Memory) ConvLSTM...")
     os.makedirs("./tmp", exist_ok=True)
     trainer = Trainer(
-        save_model_path="./tmp",
         model=model,
         train_epochs=train_epochs,
         train_dataloader=data_loaders.train_dataloader,
