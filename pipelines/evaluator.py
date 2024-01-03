@@ -49,6 +49,7 @@ class Evaluator:
             subfig.suptitle(title)
             axs = subfig.subplots(1, num_frames)
             frame_data = pred_frames if rowidx == 1 else label_frames
+            frame_data = frame_data.cpu().detach()
             for fidx in range(num_frames):
                 ax = axs[fidx]
                 with torch.no_grad():
