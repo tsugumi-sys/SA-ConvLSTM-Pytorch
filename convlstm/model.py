@@ -78,17 +78,3 @@ class ConvLSTM(nn.Module):
             output[:, :, time_step] = h  # type: ignore
 
         return output
-
-
-if __name__ == "__main__":
-    input_X = torch.rand((5, 6, 3, 16, 16), dtype=torch.float)
-    convlstm = ConvLSTM(
-        in_channels=6,
-        out_channels=15,
-        kernel_size=3,
-        padding=1,
-        activation="relu",
-        frame_size=(16, 16),
-    )
-    y = convlstm.forward(input_X)
-    print(y.shape)

@@ -8,7 +8,7 @@ from core.constants import WeightsInitializer
 
 
 class Seq2Seq(nn.Module):
-    """The sequence to sequence model implimentation using ConvLSTM."""
+    """The sequence to sequence model implementation using ConvLSTM."""
 
     def __init__(
         self,
@@ -109,25 +109,3 @@ class Seq2Seq(nn.Module):
             return output
 
         return output[:, :, -1:, ...]
-
-
-if __name__ == "__main__":
-    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    input_X = torch.rand((5, 3, 6, 16, 16), dtype=torch.float, device=DEVICE)
-    convlstm = (
-        Seq2Seq(
-            num_channels=3,
-            kernel_size=3,
-            num_kernels=4,
-            padding="same",
-            activation="relu",
-            frame_size=(16, 16),
-            num_layers=3,
-            input_seq_length=6,
-            return_sequences=True,
-        )
-        .to(DEVICE)
-        .to(torch.float)
-    )
-    y = convlstm.forward(input_X)
-    print(y.shape)
