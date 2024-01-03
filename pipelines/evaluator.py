@@ -7,7 +7,6 @@ import torch
 from matplotlib import cm
 from torch import nn
 from torch.utils.data import DataLoader
-from torchvision import transforms
 
 from core.constants import DEVICE
 
@@ -42,7 +41,6 @@ class Evaluator:
         """
         frames: (BatchSize=1, Channels, Frames, H, W)
         """
-        transform = transforms.ToPILImage()
         num_frames = label_frames.size(2)
         fig = plt.figure(figsize=(16, 6))
         subfigs = fig.subfigures(nrows=2, ncols=1)
@@ -53,7 +51,9 @@ class Evaluator:
             frame_data = pred_frames if rowidx == 1 else label_frames
             for fidx in range(num_frames):
                 ax = axs[fidx]
-                ax.imshow(np.asarray(transform(frame_data[0, :, fidx, :])))
+                with torch.no_grad():
+                    print(frame_data.shape)
+                    ax.imshow(frame_data[0, 0, fidx], cmap="gray")
                 ax.set_xlabel(f"frame{fidx}")
                 ax.set(xticklabels=[], yticklabels=[], xticks=[], yticks=[])
 
