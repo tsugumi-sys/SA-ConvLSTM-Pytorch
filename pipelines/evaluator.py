@@ -52,7 +52,6 @@ class Evaluator:
             for fidx in range(num_frames):
                 ax = axs[fidx]
                 with torch.no_grad():
-                    print(frame_data.shape)
                     ax.imshow(frame_data[0, 0, fidx], cmap="gray")
                 ax.set_xlabel(f"frame{fidx}")
                 ax.set(xticklabels=[], yticklabels=[], xticks=[], yticks=[])
