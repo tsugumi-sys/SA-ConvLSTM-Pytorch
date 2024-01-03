@@ -14,7 +14,6 @@ from pipelines.utils.early_stopping import EarlyStopping
 class Trainer:
     def __init__(
         self,
-        save_model_path: str,
         model: nn.Module,
         train_epochs: int,
         train_dataloader: DataLoader,
@@ -25,7 +24,6 @@ class Trainer:
         early_stopping: EarlyStopping,
         save_metrics_path: str,
     ) -> None:
-        self.save_model_path = save_model_path
         self.model = model.to(DEVICE)
         self.train_epochs = train_epochs
         self.train_dataloader = train_dataloader
