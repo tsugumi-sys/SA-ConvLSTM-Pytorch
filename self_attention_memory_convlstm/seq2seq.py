@@ -27,7 +27,7 @@ class SAMSeq2Seq(nn.Module):
         num_layers: int,
         input_seq_length: int,
         out_channels: Optional[int] = None,
-        weights_initializer: Optional[str] = WeightsInitializer.Zeros,
+        weights_initializer: WeightsInitializer = WeightsInitializer.Zeros,
         return_sequences: bool = False,
     ):
         super().__init__()

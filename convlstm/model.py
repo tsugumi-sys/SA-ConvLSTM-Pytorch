@@ -28,7 +28,7 @@ class ConvLSTM(nn.Module):
         padding: Union[int, Tuple, str],
         activation: str,
         frame_size: Tuple,
-        weights_initializer: Optional[str] = WeightsInitializer.Zeros,
+        weights_initializer: WeightsInitializer = WeightsInitializer.Zeros,
     ) -> None:
         """
 

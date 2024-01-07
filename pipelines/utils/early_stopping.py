@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 
 import numpy as np
 from torch import nn
@@ -27,7 +27,7 @@ class EarlyStopping:
         self.patience = patience
         self.verbose = verbose
         self.counter = 0
-        self.best_score = None
+        self.best_score: Optional[float] = None
         self.early_stop = False
         self.val_loss_min = np.Inf
         self.delta = delta
