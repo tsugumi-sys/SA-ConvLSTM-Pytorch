@@ -36,7 +36,8 @@ def test_run(mocked_save_seq2seq_model):
                 delta=0.0001,
                 model_save_path=os.path.join(tempdirpath, "checkpoint.pt"),
             ),
-            save_metrics_path=os.path.join(tempdirpath, "example.csv"),
+            artifact_dir=tempdirpath,
+            metrics_filename="example.csv",
         )
         trainer.run()
 
@@ -67,7 +68,8 @@ def test_run_early_stopping(mocked_save_seq2seq_model):
                 delta=2,
                 model_save_path=os.path.join(tempdirpath, "checkpoint.pt"),
             ),
-            save_metrics_path=os.path.join(tempdirpath, "example.csv"),
+            artifact_dir=tempdirpath,
+            metrics_filename="example.csv",
         )
         trainer.run()
 

@@ -78,7 +78,8 @@ def main():
         accuracy_criterion=acc_criterion,
         optimizer=optimizer,
         early_stopping=early_stopping,
-        save_metrics_path="./tmp/metrics.csv",
+        artifact_dir="./tmp",
+        metrics_filename="metrics.csv",
     )
     trainer.run()
 

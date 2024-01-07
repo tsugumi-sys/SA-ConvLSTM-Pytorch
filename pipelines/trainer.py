@@ -1,3 +1,4 @@
+import os
 from typing import Callable, Dict, List
 
 import pandas as pd
@@ -23,7 +24,8 @@ class Trainer(BaseRunner):
         accuracy_criterion: Callable,
         optimizer: Optimizer,
         early_stopping: EarlyStopping,
-        save_metrics_path: str,
+        artifact_dir: str,
+        metrics_filename: str = "training_metrics.csv",
     ) -> None:
         self.model = model.to(DEVICE)
         self.train_epochs = train_epochs
@@ -33,9 +35,12 @@ class Trainer(BaseRunner):
         self.accuracy_criterion = accuracy_criterion
         self.optimizer = optimizer
         self.early_stopping = early_stopping
-        if not save_metrics_path.endswith(".csv"):
-            raise ValueError("save_metrics_path should be end with `.csv`")
-        self.save_metrics_path = save_metrics_path
+        if not os.path.exists(artifact_dir):
+            os.makedirs(artifact_dir)
+        self.artifact_dir = artifact_dir
+        if not metrics_filename.endswith(".csv"):
+            raise ValueError("`save_metrics_filename` should be end with `.csv`")
+        self.metrics_filename = metrics_filename
         self._training_metrics = {
             "train_loss": [],
             "validation_loss": [],
@@ -112,4 +117,6 @@ class Trainer(BaseRunner):
         return {k: v[-1] for k, v in self._training_metrics.items()}
 
     def __save_metrics(self) -> None:
-        pd.DataFrame(self._training_metrics).to_csv(self.save_metrics_path)
+        pd.DataFrame(self._training_metrics).to_csv(
+            os.path.join(self.artifact_dir, self.metrics_filename)
+        )

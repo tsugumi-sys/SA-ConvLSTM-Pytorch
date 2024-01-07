@@ -31,6 +31,9 @@ class EarlyStopping:
         self.early_stop = False
         self.val_loss_min = np.Inf
         self.delta = delta
+        self.model_filename = model_save_path
+        if not model_save_path.endswith(".pt"):
+            raise ValueError("`model_filename` should be end with .pt")
         self.model_save_path = model_save_path
         self.trace_func = trace_func
         self.state_dict = None
