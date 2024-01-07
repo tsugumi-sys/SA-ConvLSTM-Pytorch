@@ -1,6 +1,7 @@
 from typing import Tuple, Union
 
 import torch
+from torch import nn
 
 from core.constants import WeightsInitializer
 from core.convlstm_cell import BaseConvLSTMCell
@@ -9,7 +10,7 @@ from self_attention_convlstm.self_attention import (
 )
 
 
-class SAConvLSTMCell(BaseConvLSTMCell):
+class SAConvLSTMCell(nn.Module):
     """Base Self-Attention ConvLSTM cell implementation (Lin et al., 2020)."""
 
     def __init__(
@@ -23,7 +24,8 @@ class SAConvLSTMCell(BaseConvLSTMCell):
         frame_size: Tuple,
         weights_initializer: WeightsInitializer = WeightsInitializer.Zeros,
     ) -> None:
-        super().__init__(
+        super().__init__()
+        self.convlstm_cell = BaseConvLSTMCell(
             in_channels,
             out_channels,
             kernel_size,
@@ -32,7 +34,6 @@ class SAConvLSTMCell(BaseConvLSTMCell):
             frame_size,
             weights_initializer,
         )
-
         self.attention_x = SelfAttention(in_channels, attention_hidden_dims)
         self.attention_h = SelfAttention(out_channels, attention_hidden_dims)
 
