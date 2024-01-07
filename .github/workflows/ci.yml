@@ -3,7 +3,7 @@ on:
   push:
     paths:
       - '**.py'
-      - pyproject.toml
+      - 'pyproject.toml'
 
 jobs:
   ci:
