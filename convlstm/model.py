@@ -1,10 +1,20 @@
-from typing import Optional, Tuple, Union
+from typing import NotRequired, Optional, Tuple, TypedDict, Union
 
 import torch
 from torch import nn
 
 from core.constants import DEVICE, WeightsInitializer
 from core.convlstm_cell import BaseConvLSTMCell
+
+
+class ConvLSTMParams(TypedDict):
+    in_channels: int
+    out_channels: int
+    kernel_size: Union[int, Tuple]
+    padding: Union[int, Tuple, str]
+    activation: str
+    frame_size: Tuple[int, int]
+    weights_initializer: NotRequired[str]
 
 
 class ConvLSTM(nn.Module):
@@ -29,6 +39,7 @@ class ConvLSTM(nn.Module):
             padding (Union[int, Tuple, str]): Should be in ['same', 'valid' or (int, int)]
             activation (str): Name of activation function.
             frame_size (Tuple): height and width.
+            weights_initializer: Optional[str]: Weight initializers of ['zeros', 'he', 'xavier'].
         """
         super().__init__()
 
