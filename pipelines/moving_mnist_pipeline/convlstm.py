@@ -88,7 +88,7 @@ def main():
     evaluator = Evaluator(
         model=model,
         test_dataloader=data_loaders.test_dataloader,
-        save_dir_path="./tmp/evaluate",
+        artifact_dir="./tmp/evaluate",
     )
     evaluator.run()
 
