@@ -23,6 +23,6 @@ jobs:
       - name: Run Ruff Linter
         run: |
           ruff check .
-      # - name: Run mypy Type Checking
-      #   run: |
-      #     mypy .
+      - name: Run mypy Type Checking
+        run: |
+          mypy .
