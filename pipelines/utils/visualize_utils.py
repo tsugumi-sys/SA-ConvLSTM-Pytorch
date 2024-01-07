@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import torch
-from matplotlib import cm
+from matplotlib import colormaps
 from torch import nn
 
 
@@ -116,7 +116,7 @@ def save_attention_maps(save_dir_path: str, model: nn.Module) -> None:
             )
             ax = axes[fidx]
             clevels = np.linspace(0, target_maps.max(), 25)
-            cmap = cm.bwr
+            cmap = colormaps.get_cmap("bwr")
             ax.imshow(
                 target_maps,
                 cmap=cmap,
