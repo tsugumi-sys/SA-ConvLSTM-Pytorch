@@ -1,12 +1,12 @@
 from typing import Tuple
 
 import torch
-from torch.utils.data import DataLoader, Dataset, random_split
+from torch.utils.data import DataLoader, Dataset, Subset, random_split
 from torchvision.datasets import MovingMNIST
 
 
 class VideoPredictionDataset(Dataset):
-    def __init__(self, data: torch.Tensor, input_frames: int = 10):
+    def __init__(self, data: Subset, input_frames: int = 10):
         self.data = data
         self.input_frames = input_frames
 
