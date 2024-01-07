@@ -39,7 +39,7 @@ class ConvLSTM(nn.Module):
             padding (Union[int, Tuple, str]): Should be in ['same', 'valid' or (int, int)]
             activation (str): Name of activation function.
             frame_size (Tuple): height and width.
-            weights_initializer: Optional[str]: Weight initializers of ['zeros', 'he', 'xavier'].
+            weights_initializer (Optional[str]): Weight initializers of ['zeros', 'he', 'xavier'].
         """
         super().__init__()
 
