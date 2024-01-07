@@ -1,10 +1,16 @@
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, TypedDict, Union
 
 import torch
 from torch import nn
 
+from convlstm.model import ConvLSTMParams
 from core.constants import DEVICE, WeightsInitializer
 from self_attention_convlstm.cell import SAConvLSTMCell
+
+
+class SAConvLSTMParams(TypedDict):
+    attention_hidden_dims: int
+    convlstm_params: ConvLSTMParams
 
 
 class SAConvLSTM(nn.Module):
@@ -47,7 +53,7 @@ class SAConvLSTM(nn.Module):
         batch_size, _, seq_len, height, width = X.size()
 
         # NOTE: Cannot store all attention scores because of memory. So only store attention map of the center.
-        # And the same attention score are applyed to each channels.
+        # And the same attention score are applied to each channels.
         self.attention_scores = torch.zeros(
             (batch_size, seq_len, height * width), device=DEVICE
         )

@@ -1,10 +1,17 @@
-from typing import Optional, Tuple, Union
+from typing import NotRequired, Optional, Tuple, TypedDict, Union
 
 import torch
 from torch import nn
 
 from core.constants import WeightsInitializer
-from self_attention_convlstm.model import SAConvLSTM
+from self_attention_convlstm.model import SAConvLSTM, SAConvLSTMParams
+
+
+class SASeq2SeqParams(TypedDict):
+    num_layers: int
+    input_seq_length: int
+    return_sequences: NotRequired[bool]
+    saconvlstm_params: SAConvLSTMParams
 
 
 class SASeq2Seq(nn.Module):
