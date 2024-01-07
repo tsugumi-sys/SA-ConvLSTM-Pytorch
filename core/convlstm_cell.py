@@ -30,7 +30,6 @@ class BaseConvLSTMCell(nn.Module):
             frame_size (Tuple): height and width
         """
         super().__init__()
-
         self.activation = self.__activation(activation)
         self.conv = nn.Conv2d(
             in_channels=in_channels + out_channels,
