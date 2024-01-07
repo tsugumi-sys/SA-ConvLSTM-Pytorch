@@ -25,7 +25,7 @@ class SAMConvLSTM(nn.Module):
         padding: Union[int, Tuple, str],
         activation: str,
         frame_size: Tuple,
-        weights_initializer: Optional[str] = WeightsInitializer.Zeros.value,
+        weights_initializer: WeightsInitializer = WeightsInitializer.Zeros,
     ):
         super().__init__()
         self.sam_convlstm_cell = SAMConvLSTMCell(
@@ -41,8 +41,11 @@ class SAMConvLSTM(nn.Module):
 
         self.in_channels = in_channels
         self.out_channels = out_channels
+        self._attention_scores: Optional[torch.Tensor] = None
 
-        self.attention_scores = None
+    @property
+    def attention_scores(self) -> Optional[torch.Tensor]:
+        return self._attention_scores
 
     def forward(
         self,
@@ -55,7 +58,7 @@ class SAMConvLSTM(nn.Module):
 
         # NOTE: Cannot store all attention scores because of memory. So only store attention map of the center.
         # And the same attention score are applied to each channels.
-        self.attention_scores = torch.zeros(
+        self._attention_scores = torch.zeros(
             (batch_size, seq_len, height * width), device=DEVICE
         )
 
@@ -87,7 +90,7 @@ class SAMConvLSTM(nn.Module):
             # Save attention maps of the center point because storing
             # the full `attention_h` is difficult because of the lot of memory usage.
             # `attention_h` shape is (batch_size, height*width, height*width)
-            self.attention_scores[:, time_step] = attention_h[
+            self._attention_scores[:, time_step] = attention_h[
                 :, attention_h.size(0) // 2
             ]
 

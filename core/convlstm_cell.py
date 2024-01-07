@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Tuple, Union
 
 import torch
 from torch import nn
@@ -17,7 +17,7 @@ class BaseConvLSTMCell(nn.Module):
         padding: Union[int, Tuple, str],
         activation: str,
         frame_size: Tuple,
-        weights_initializer: Optional[str] = WeightsInitializer.Zeros,
+        weights_initializer: WeightsInitializer = WeightsInitializer.Zeros,
     ) -> None:
         """
 
@@ -31,17 +31,7 @@ class BaseConvLSTMCell(nn.Module):
         """
         super().__init__()
 
-        if activation == "tanh":
-            self.activation = torch.tanh
-        elif activation == "relu":
-            self.activation = torch.relu
-        elif activation == "leakyRelu":
-            self.activation = torch.nn.LeakyReLU()
-        elif activation == "sigmoid":
-            self.activation = torch.sigmoid
-        else:
-            raise ValueError(f"Unknown activation: {activation}")
-
+        self.activation = self.__activation(activation)
         self.conv = nn.Conv2d(
             in_channels=in_channels + out_channels,
             out_channels=4 * out_channels,
@@ -59,19 +49,37 @@ class BaseConvLSTMCell(nn.Module):
         self.W_cf = nn.parameter.Parameter(
             torch.zeros(out_channels, *frame_size, dtype=torch.float)
         ).to(DEVICE)
+        self.__initialize_weights(weights_initializer)
 
-        if weights_initializer == WeightsInitializer.Zeros:
-            pass
-        elif weights_initializer == WeightsInitializer.He:
+    def __activation(self, activation: str) -> nn.Module:
+        if activation == "tanh":
+            return nn.Tanh()
+        elif activation == "relu":
+            return nn.ReLU()
+        elif activation == "leakyRelu":
+            return nn.LeakyReLU()
+        elif activation == "sigmoid":
+            return nn.Sigmoid()
+        else:
+            raise ValueError(f"Unknown activation: {activation}")
+
+    def __initialize_weights(self, initializer: WeightsInitializer):
+        if initializer == WeightsInitializer.Zeros:
+            return
+
+        elif initializer == WeightsInitializer.He:
             nn.init.kaiming_normal_(self.W_ci, mode="fan_in", nonlinearity="leaky_relu")
             nn.init.kaiming_normal_(self.W_co, mode="fan_in", nonlinearity="leaky_relu")
             nn.init.kaiming_normal_(self.W_cf, mode="fan_in", nonlinearity="leaky_relu")
-        elif weights_initializer == WeightsInitializer.Xavier:
+            return
+
+        elif initializer == WeightsInitializer.Xavier:
             nn.init.xavier_normal_(self.W_ci, gain=1.0)
             nn.init.xavier_normal_(self.W_co, gain=1.0)
             nn.init.xavier_normal_(self.W_cf, gain=1.0)
+            return
         else:
-            raise ValueError(f"Invalid weights Initializer: {weights_initializer}")
+            raise ValueError(f"Invalid weights Initializer: {initializer}")
 
     def forward(
         self, X: torch.Tensor, prev_h: torch.Tensor, prev_cell: torch.Tensor

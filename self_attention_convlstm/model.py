@@ -25,7 +25,7 @@ class SAConvLSTM(nn.Module):
         padding: Union[int, Tuple, str],
         activation: str,
         frame_size: Tuple,
-        weights_initializer: Optional[str] = WeightsInitializer.Zeros.value,
+        weights_initializer: WeightsInitializer = WeightsInitializer.Zeros,
     ) -> None:
         super().__init__()
 
@@ -40,9 +40,13 @@ class SAConvLSTM(nn.Module):
             weights_initializer,
         )
 
-        self.attention_scores = None
         self.in_channels = in_channels
         self.out_channels = out_channels
+        self._attention_scores: Optional[torch.Tensor] = None
+
+    @property
+    def attention_scores(self) -> Optional[torch.Tensor]:
+        return self._attention_scores
 
     def forward(
         self,
@@ -54,7 +58,7 @@ class SAConvLSTM(nn.Module):
 
         # NOTE: Cannot store all attention scores because of memory. So only store attention map of the center.
         # And the same attention score are applied to each channels.
-        self.attention_scores = torch.zeros(
+        self._attention_scores = torch.zeros(
             (batch_size, seq_len, height * width), device=DEVICE
         )
 
@@ -76,7 +80,7 @@ class SAConvLSTM(nn.Module):
             h, cell, attention = self.sa_convlstm_cell(X[:, :, time_step], h, cell)
 
             output[:, :, time_step] = h  # type: ignore
-            self.attention_scores[:, time_step] = attention[
+            self._attention_scores[:, time_step] = attention[
                 :, attention.size(0) // 2
             ]  # attention shape is (batch_size, height*width, height*width)
 
