@@ -1,10 +1,17 @@
-from typing import Optional, Tuple, Union
+from typing import NotRequired, Optional, Tuple, TypedDict, Union
 
 import torch
 from torch import nn
 
-from convlstm.model import ConvLSTM
+from convlstm.model import ConvLSTM, ConvLSTMParams
 from core.constants import WeightsInitializer
+
+
+class Seq2SeqParams(TypedDict):
+    num_layers: int
+    input_seq_length: int
+    return_sequences: NotRequired[bool]
+    convlstm_params: ConvLSTMParams
 
 
 class Seq2Seq(nn.Module):
