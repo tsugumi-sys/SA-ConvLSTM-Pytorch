@@ -25,7 +25,7 @@ class Trainer(BaseRunner):
         model: nn.Module,
         train_epochs: int,
         train_dataloader: DataLoader,
-        valid_dataloader: DataLoader,
+        validation_dataloader: DataLoader,
         loss_criterion: _Loss,
         accuracy_criterion: Callable,
         optimizer: Optimizer,
@@ -36,7 +36,7 @@ class Trainer(BaseRunner):
         self.model = model.to(DEVICE)
         self.train_epochs = train_epochs
         self.train_dataloader = train_dataloader
-        self.valid_dataloader = valid_dataloader
+        self.validation_dataloader = validation_dataloader
         self.loss_criterion = loss_criterion
         self.accuracy_criterion = accuracy_criterion
         self.optimizer = optimizer
@@ -100,14 +100,14 @@ class Trainer(BaseRunner):
         valid_loss, valid_acc = 0, 0
         self.model.eval()
         with torch.no_grad():
-            for input, target in self.valid_dataloader:
+            for input, target in self.validation_dataloader:
                 input, target = input.to(DEVICE), target.to(DEVICE)
                 output = self.model(input)
                 loss = self.loss_criterion(output.flatten(), target.flatten())
                 acc = self.accuracy_criterion(output.flatten(), target.flatten())
                 valid_loss += loss.item()
                 valid_acc += acc.item()
-        dataset_length = len(self.valid_dataloader)
+        dataset_length = len(self.validation_dataloader)
         self.__log_metric(
             validation_loss=valid_loss / dataset_length,
             validation_accuracy=valid_acc / dataset_length,
