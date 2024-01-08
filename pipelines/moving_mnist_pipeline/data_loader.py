@@ -4,6 +4,8 @@ import torch
 from torch.utils.data import DataLoader, Dataset, Subset, random_split
 from torchvision.datasets import MovingMNIST
 
+from pipelines.base import BaseDataLoaders
+
 
 class VideoPredictionDataset(Dataset):
     def __init__(self, data: Subset, input_frames: int = 10):
@@ -22,7 +24,7 @@ class VideoPredictionDataset(Dataset):
         )
 
 
-class MovingMNISTDataLoaders:
+class MovingMNISTDataLoaders(BaseDataLoaders):
     def __init__(
         self, train_batch_size: int, input_frames: int = 10, shuffle: bool = True
     ):
@@ -41,15 +43,15 @@ class MovingMNISTDataLoaders:
         self.test_dataset = VideoPredictionDataset(test_dataset, self.input_frames)
 
     @property
-    def train_dataloader(self):
+    def train_dataloader(self) -> DataLoader:
         return DataLoader(
             self.train_dataset, batch_size=self.train_batch_size, shuffle=self.shuffle
         )
 
     @property
-    def valid_dataloader(self):
+    def validation_dataloader(self) -> DataLoader:
         return DataLoader(self.valid_dataset, batch_size=1, shuffle=self.shuffle)
 
     @property
-    def test_dataloader(self):
+    def test_dataloader(self) -> DataLoader:
         return DataLoader(self.test_dataset, batch_size=1, shuffle=self.shuffle)

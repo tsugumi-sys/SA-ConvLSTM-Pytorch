@@ -71,7 +71,7 @@ def main():
         model=model,
         train_epochs=train_epochs,
         train_dataloader=data_loaders.train_dataloader,
-        valid_dataloader=data_loaders.valid_dataloader,
+        validation_dataloader=data_loaders.validation_dataloader,
         loss_criterion=loss_criterion,
         accuracy_criterion=acc_criterion,
         optimizer=optimizer,

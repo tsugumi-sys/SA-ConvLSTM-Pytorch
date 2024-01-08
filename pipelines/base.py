@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+
+from torch.utils.data import DataLoader
 
 
 class BaseRunner(ABC):
@@ -9,11 +10,6 @@ class BaseRunner(ABC):
 
 
 class BasePipeline(ABC):
-    @property
-    @abstractmethod
-    def default_parameters(self) -> Dict[str, Any]:
-        pass
-
     @abstractmethod
     def preprocess(self):
         pass
@@ -24,4 +20,21 @@ class BasePipeline(ABC):
 
     @abstractmethod
     def evaluate(self):
+        pass
+
+
+class BaseDataLoaders(ABC):
+    @property
+    @abstractmethod
+    def train_dataloader(self) -> DataLoader:
+        pass
+
+    @property
+    @abstractmethod
+    def validation_dataloader(self) -> DataLoader:
+        pass
+
+    @property
+    @abstractmethod
+    def test_dataloader(self) -> DataLoader:
         pass
