@@ -4,7 +4,7 @@ import torch
 from torch.utils.data import DataLoader, Dataset, Subset, random_split
 from torchvision.datasets import MovingMNIST
 
-from pipelines.base import BaseDataLoaders
+from data_loaders.base import BaseDataLoaders
 
 
 class VideoPredictionDataset(Dataset):
@@ -35,7 +35,7 @@ class MovingMNISTDataLoaders(BaseDataLoaders):
         moving_mnist = MovingMNIST(root="./data", download=True)
         train_dataset, valid_dataset, test_dataset = random_split(
             moving_mnist,
-            [0.7, 0.299, 0.001],
+            [0.7, 0.2, 0.1],
             generator=torch.Generator().manual_seed(42),
         )
         self.train_dataset = VideoPredictionDataset(train_dataset, self.input_frames)
