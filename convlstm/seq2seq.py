@@ -68,7 +68,7 @@ class Seq2Seq(nn.Module):
         )
 
         # Add the rest of the layers
-        for layer_idx in range(2, num_layers + 1):
+        for layer_idx in range(2, self.num_layers + 1):
             self.sequential.add_module(
                 f"convlstm{layer_idx}",
                 ConvLSTM(
