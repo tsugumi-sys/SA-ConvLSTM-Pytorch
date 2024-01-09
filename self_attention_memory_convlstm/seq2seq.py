@@ -1,48 +1,54 @@
-from typing import NotRequired, Optional, Tuple, TypedDict, Union
+from typing import NotRequired, TypedDict
 
 import torch
 from torch import nn
 
-from core.constants import WeightsInitializer
-from self_attention_memory_convlstm.model import SAMConvLSTM, SAMConvLSTMParams
+from convlstm.model import ConvLSTMParams
+from self_attention_memory_convlstm.model import SAMConvLSTM
 
 
 class SAMSeq2SeqParams(TypedDict):
-    num_layers: int
+    attention_hidden_dims: int
     input_seq_length: int
+    num_layers: int
+    num_kernels: int
     return_sequences: NotRequired[bool]
-    saconvlstm_params: SAMConvLSTMParams
+    convlstm_params: ConvLSTMParams
 
 
 class SAMSeq2Seq(nn.Module):
     def __init__(
         self,
         attention_hidden_dims: int,
-        num_channels: int,
-        kernel_size: Union[int, Tuple],
-        num_kernels: int,
-        padding: Union[int, Tuple, str],
-        activation: str,
-        frame_size: Tuple,
-        num_layers: int,
         input_seq_length: int,
-        out_channels: Optional[int] = None,
-        weights_initializer: WeightsInitializer = WeightsInitializer.Zeros,
+        num_layers: int,
+        num_kernels: int,
+        convlstm_params: ConvLSTMParams,
         return_sequences: bool = False,
     ):
+        """
+
+        Args:
+            attention_hidden_dims (int): Number of attention hidden layers.
+            input_seq_length (int): Number of input frames.
+            num_layers (int): Number of ConvLSTM layers.
+            num_kernels (int): Number of kernels.
+            return_sequences (int): If True, the model predict the next frames that is the same length of inputs. If False, the model predicts only one next frame.
+            convlstm_params (ConvLSTMParams): Parameters for ConvLSTM module.
+        """
         super().__init__()
         self.attention_hidden_dims = attention_hidden_dims
-        self.num_channels = num_channels
-        self.kernel_size = kernel_size
-        self.num_kernels = num_kernels
-        self.padding = padding
-        self.activation = activation
-        self.frame_size = frame_size
-        self.num_layers = num_layers
         self.input_seq_length = input_seq_length
-        self.out_channels = out_channels if out_channels is not None else num_channels
-        self.weights_initializer = weights_initializer
+        self.num_layers = num_layers
+        self.num_kernels = num_kernels
         self.return_sequences = return_sequences
+        self.in_channels = convlstm_params["in_channels"]
+        self.kernel_size = convlstm_params["kernel_size"]
+        self.padding = convlstm_params["padding"]
+        self.activation = convlstm_params["activation"]
+        self.frame_size = convlstm_params["frame_size"]
+        self.out_channels = convlstm_params["out_channels"]
+        self.weights_initializer = convlstm_params["weights_initializer"]
 
         self.sequential = nn.Sequential()
 
@@ -50,13 +56,15 @@ class SAMSeq2Seq(nn.Module):
             "sam-convlstm1",
             SAMConvLSTM(
                 attention_hidden_dims=self.attention_hidden_dims,
-                in_channels=self.num_channels,
-                out_channels=self.num_kernels,
-                kernel_size=self.kernel_size,
-                padding=self.padding,
-                activation=self.activation,
-                frame_size=self.frame_size,
-                weights_initializer=self.weights_initializer,
+                convlstm_params={
+                    "in_channels": self.in_channels,
+                    "out_channels": self.num_kernels,
+                    "kernel_size": self.kernel_size,
+                    "padding": self.padding,
+                    "activation": self.activation,
+                    "frame_size": self.frame_size,
+                    "weights_initializer": self.weights_initializer,
+                },
             ),
         )
 
@@ -70,13 +78,15 @@ class SAMSeq2Seq(nn.Module):
                 f"sam-convlstm{layer_idx}",
                 SAMConvLSTM(
                     attention_hidden_dims=self.attention_hidden_dims,
-                    in_channels=self.num_kernels,
-                    out_channels=self.num_kernels,
-                    kernel_size=self.kernel_size,
-                    padding=self.padding,
-                    activation=self.activation,
-                    frame_size=self.frame_size,
-                    weights_initializer=self.weights_initializer,
+                    convlstm_params={
+                        "in_channels": self.num_kernels,
+                        "out_channels": self.num_kernels,
+                        "kernel_size": self.kernel_size,
+                        "padding": self.padding,
+                        "activation": self.activation,
+                        "frame_size": self.frame_size,
+                        "weights_initializer": self.weights_initializer,
+                    },
                 ),
             )
             self.sequential.add_module(
@@ -114,26 +124,3 @@ class SAMSeq2Seq(nn.Module):
         return {
             name: module.attention_scores for name, module in sam_convlstm_modules
         }  # attention scores shape is (batch_size, seq_length, height * width)
-
-
-if __name__ == "__main__":
-    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    input_X = torch.rand((5, 3, 6, 16, 16), dtype=torch.float, device=DEVICE)
-    model = (
-        SAMSeq2Seq(
-            attention_hidden_dims=4,
-            num_channels=3,
-            kernel_size=3,
-            num_kernels=4,
-            padding="same",
-            activation="relu",
-            frame_size=(16, 16),
-            num_layers=4,
-            input_seq_length=6,
-            return_sequences=True,
-        )
-        .to(DEVICE)
-        .to(torch.float)
-    )
-    y = model.forward(input_X)
-    print(y.shape)
