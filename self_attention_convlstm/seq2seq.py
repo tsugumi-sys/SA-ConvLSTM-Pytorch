@@ -1,17 +1,19 @@
-from typing import NotRequired, Optional, Tuple, TypedDict, Union
+from typing import NotRequired, TypedDict
 
 import torch
 from torch import nn
 
-from core.constants import WeightsInitializer
-from self_attention_convlstm.model import SAConvLSTM, SAConvLSTMParams
+from convlstm.model import ConvLSTMParams
+from self_attention_convlstm.model import SAConvLSTM
 
 
 class SASeq2SeqParams(TypedDict):
-    num_layers: int
+    attention_hidden_dims: int
     input_seq_length: int
+    num_layers: int
+    num_kernels: int
     return_sequences: NotRequired[bool]
-    saconvlstm_params: SAConvLSTMParams
+    convlstm_params: ConvLSTMParams
 
 
 class SASeq2Seq(nn.Module):
@@ -20,16 +22,10 @@ class SASeq2Seq(nn.Module):
     def __init__(
         self,
         attention_hidden_dims: int,
-        num_channels: int,
-        kernel_size: Union[int, Tuple],
-        num_kernels: int,
-        padding: Union[int, Tuple, str],
-        activation: str,
-        frame_size: Tuple,
-        num_layers: int,
         input_seq_length: int,
-        out_channels: Optional[int] = None,
-        weights_initializer: WeightsInitializer = WeightsInitializer.Zeros,
+        num_layers: int,
+        num_kernels: int,
+        convlstm_params: ConvLSTMParams,
         return_sequences: bool = False,
     ) -> None:
         """
@@ -45,18 +41,17 @@ class SASeq2Seq(nn.Module):
         """
         super().__init__()
         self.attention_hidden_dims = attention_hidden_dims
-        self.num_channels = num_channels
-        self.kernel_size = kernel_size
-        self.num_kernels = num_kernels
-        self.padding = padding
-        self.activation = activation
-        self.frame_size = frame_size
-        self.num_layers = num_layers
         self.input_seq_length = input_seq_length
-        self.out_channels = out_channels if out_channels is not None else num_channels
-        self.weights_initializer = weights_initializer
+        self.num_layers = num_layers
+        self.num_kernels = num_kernels
         self.return_sequences = return_sequences
-
+        self.in_channels = convlstm_params["in_channels"]
+        self.kernel_size = convlstm_params["kernel_size"]
+        self.padding = convlstm_params["padding"]
+        self.activation = convlstm_params["activation"]
+        self.frame_size = convlstm_params["frame_size"]
+        self.out_channels = convlstm_params["out_channels"]
+        self.weights_initializer = convlstm_params["weights_initializer"]
         self.sequential = nn.Sequential()
 
         # Add first layer (Different in_channels than the rest)
@@ -64,40 +59,46 @@ class SASeq2Seq(nn.Module):
             "sa_convlstm1",
             SAConvLSTM(
                 attention_hidden_dims=self.attention_hidden_dims,
-                in_channels=num_channels,
-                out_channels=num_kernels,
-                kernel_size=kernel_size,
-                padding=padding,
-                activation=activation,
-                frame_size=frame_size,
-                weights_initializer=weights_initializer,
+                convlstm_params={
+                    "in_channels": self.in_channels,
+                    "out_channels": self.num_kernels,
+                    "kernel_size": self.kernel_size,
+                    "padding": self.padding,
+                    "activation": self.activation,
+                    "frame_size": self.frame_size,
+                    "weights_initializer": self.weights_initializer,
+                },
             ),
         )
 
         self.sequential.add_module(
             "layernorm1",
-            nn.LayerNorm([num_kernels, self.input_seq_length, *self.frame_size]),
+            nn.LayerNorm([self.num_kernels, self.input_seq_length, *self.frame_size]),
         )
 
         # Add the rest of the layers
-        for layer_idx in range(2, num_layers + 1):
+        for layer_idx in range(2, self.num_layers + 1):
             self.sequential.add_module(
                 f"sa_convlstm{layer_idx}",
                 SAConvLSTM(
                     attention_hidden_dims=self.attention_hidden_dims,
-                    in_channels=num_kernels,
-                    out_channels=num_kernels,
-                    kernel_size=kernel_size,
-                    padding=padding,
-                    activation=activation,
-                    frame_size=frame_size,
-                    weights_initializer=weights_initializer,
+                    convlstm_params={
+                        "in_channels": self.num_kernels,
+                        "out_channels": self.num_kernels,
+                        "kernel_size": self.kernel_size,
+                        "padding": self.padding,
+                        "activation": self.activation,
+                        "frame_size": self.frame_size,
+                        "weights_initializer": self.weights_initializer,
+                    },
                 ),
             )
 
             self.sequential.add_module(
                 f"layernorm{layer_idx}",
-                nn.LayerNorm([num_kernels, self.input_seq_length, *self.frame_size]),
+                nn.LayerNorm(
+                    [self.num_kernels, self.input_seq_length, *self.frame_size]
+                ),
             )
 
         self.sequential.add_module(
