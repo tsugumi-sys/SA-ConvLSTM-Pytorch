@@ -31,13 +31,12 @@ class SASeq2Seq(nn.Module):
         """
 
         Args:
-            num_channels (int): [Number of input channels]
-            kernel_size (int): [kernel size]
-            num_kernels (int): [Number of kernels]
-            padding (Union[str, Tuple]): ['same', 'valid' or (int, int)]
-            activation (str): [the name of activation function]
-            frame_size (Tuple): [height and width]
-            num_layers (int): [the number of layers]
+            attention_hidden_dims (int): Number of attention hidden layers.
+            input_seq_length (int): Number of input frames.
+            num_layers (int): Number of ConvLSTM layers.
+            num_kernels (int): Number of kernels.
+            return_sequences (int): If True, the model predict the next frames that is the same length of inputs. If False, the model predicts only one next frame.
+            convlstm_params (ConvLSTMParams): Parameters for ConvLSTM module.
         """
         super().__init__()
         self.attention_hidden_dims = attention_hidden_dims
