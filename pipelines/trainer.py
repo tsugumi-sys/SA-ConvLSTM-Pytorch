@@ -1,5 +1,5 @@
 import os
-from typing import Callable, Dict, List, Optional, TypedDict, cast
+from typing import Callable, Dict, List, NotRequired, Optional, TypedDict, cast
 
 import pandas as pd
 import torch
@@ -11,6 +11,16 @@ from torch.utils.data import DataLoader
 from core.constants import DEVICE
 from pipelines.base import BaseRunner
 from pipelines.utils.early_stopping import EarlyStopping
+
+
+class TrainingParams(TypedDict):
+    epochs: int
+    batch_size: int
+    loss_criterion: nn.Module
+    accuracy_criterion: nn.Module
+    optimizer: nn.Module
+    early_stopping: EarlyStopping
+    metrics_filename: NotRequired[str]
 
 
 class TrainingMetrics(TypedDict):
