@@ -131,26 +131,3 @@ class SASeq2Seq(nn.Module):
         return {
             name: module.attention_scores for name, module in sa_convlstm_modules
         }  # attention scores shape is (batch_size, seq_length, height * width)
-
-
-if __name__ == "__main__":
-    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    input_X = torch.rand((5, 3, 6, 16, 16), dtype=torch.float, device=DEVICE)
-    model = (
-        SASeq2Seq(
-            attention_hidden_dims=4,
-            num_channels=3,
-            kernel_size=3,
-            num_kernels=4,
-            padding="same",
-            activation="relu",
-            frame_size=(16, 16),
-            num_layers=4,
-            input_seq_length=6,
-            return_sequences=True,
-        )
-        .to(DEVICE)
-        .to(torch.float)
-    )
-    y = model.forward(input_X)
-    print(y.shape)
