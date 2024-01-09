@@ -14,7 +14,7 @@ class ConvLSTMParams(TypedDict):
     padding: Union[int, Tuple, str]
     activation: str
     frame_size: Tuple[int, int]
-    weights_initializer: NotRequired[str]
+    weights_initializer: NotRequired[WeightsInitializer]
 
 
 class ConvLSTM(nn.Module):

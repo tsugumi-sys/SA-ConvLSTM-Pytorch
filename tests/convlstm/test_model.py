@@ -1,7 +1,7 @@
 import torch
 
 from convlstm.model import ConvLSTM, ConvLSTMParams
-from core.constants import DEVICE
+from core.constants import DEVICE, WeightsInitializer
 
 
 def test_ConvLSTM():
@@ -12,6 +12,7 @@ def test_ConvLSTM():
         "padding": 1,
         "activation": "relu",
         "frame_size": (8, 8),
+        "weights_initializer": WeightsInitializer.He,
     }
     model = ConvLSTM(**model_params)
     output = model(torch.rand((2, 1, 3, 8, 8), dtype=torch.float, device=DEVICE))
