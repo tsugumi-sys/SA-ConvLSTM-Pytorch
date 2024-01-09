@@ -1,10 +1,10 @@
-from typing import Optional, Tuple, TypedDict, Union
+from typing import Optional, TypedDict
 
 import torch
 from torch import nn
 
 from convlstm.model import ConvLSTMParams
-from core.constants import DEVICE, WeightsInitializer
+from core.constants import DEVICE
 from self_attention_convlstm.cell import SAConvLSTMCell
 
 
@@ -17,31 +17,22 @@ class SAConvLSTM(nn.Module):
     """Base Self-Attention ConvLSTM implementation (Lin et al., 2020)."""
 
     def __init__(
-        self,
-        attention_hidden_dims: int,
-        in_channels: int,
-        out_channels: int,
-        kernel_size: Union[int, Tuple],
-        padding: Union[int, Tuple, str],
-        activation: str,
-        frame_size: Tuple,
-        weights_initializer: WeightsInitializer = WeightsInitializer.Zeros,
+        self, attention_hidden_dims: int, convlstm_params: ConvLSTMParams
     ) -> None:
         super().__init__()
+        self.attention_hidden_dims = attention_hidden_dims
+        self.in_channels = convlstm_params["in_channels"]
+        self.kernel_size = convlstm_params["kernel_size"]
+        self.padding = convlstm_params["padding"]
+        self.activation = convlstm_params["activation"]
+        self.frame_size = convlstm_params["frame_size"]
+        self.out_channels = convlstm_params["out_channels"]
+        self.weights_initializer = convlstm_params["weights_initializer"]
 
         self.sa_convlstm_cell = SAConvLSTMCell(
-            attention_hidden_dims,
-            in_channels,
-            out_channels,
-            kernel_size,
-            padding,
-            activation,
-            frame_size,
-            weights_initializer,
+            attention_hidden_dims=attention_hidden_dims, **convlstm_params
         )
 
-        self.in_channels = in_channels
-        self.out_channels = out_channels
         self._attention_scores: Optional[torch.Tensor] = None
 
     @property
