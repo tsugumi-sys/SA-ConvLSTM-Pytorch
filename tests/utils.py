@@ -1,23 +1,19 @@
-from typing import Tuple
-
 import torch
 from torch.utils.data import DataLoader, Dataset
 
-from pipelines.base import BaseDataLoaders
+from data_loaders.base import BaseDataLoaders
+from data_loaders.moving_mnist import VideoPredictionDataset
 
 
 class MockMovingMNIST(Dataset):
-    def __init__(self, data_length: int = 20, split_ratio: int = 10):
-        self.data = torch.rand((data_length, 20, 1, 64, 64))
-        self.split_ratio = split_ratio
+    def __init__(self, dataset_length: int = 20):
+        self.data = torch.rand((dataset_length, 20, 1, 64, 64)).to(torch.float)
 
     def __len__(self):
         return len(self.data)
 
-    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
-        input_frames = self.data[idx, : self.split_ratio].to(torch.float32)
-        label_frames = self.data[idx, self.split_ratio :].to(torch.float32)
-        return (torch.swapaxes(input_frames, 0, 1), torch.swapaxes(label_frames, 0, 1))
+    def __getitem__(self, idx: int) -> torch.Tensor:
+        return self.data[idx]
 
 
 class MockMovingMNISTDataLoaders(BaseDataLoaders):
@@ -33,9 +29,15 @@ class MockMovingMNISTDataLoaders(BaseDataLoaders):
         self.split_ratio = split_ratio
         self.shuffle = shuffle
 
-        self.train_dataset = MockMovingMNIST(self.dataset_length, self.split_ratio)
-        self.valid_dataset = MockMovingMNIST(self.dataset_length, self.split_ratio)
-        self.test_dataset = MockMovingMNIST(self.dataset_length, self.split_ratio)
+        self.train_dataset = VideoPredictionDataset(
+            MockMovingMNIST(self.dataset_length), self.split_ratio
+        )
+        self.valid_dataset = VideoPredictionDataset(
+            MockMovingMNIST(self.dataset_length), self.split_ratio
+        )
+        self.test_dataset = VideoPredictionDataset(
+            MockMovingMNIST(self.dataset_length), self.split_ratio
+        )
 
     @property
     def train_dataloader(self) -> DataLoader:
@@ -52,5 +54,8 @@ class MockMovingMNISTDataLoaders(BaseDataLoaders):
         return DataLoader(self.test_dataset, batch_size=1, shuffle=self.shuffle)
 
 
-def mock_data_loader(batch_size: int = 5, data_length: int = 10):
-    return DataLoader(MockMovingMNIST(data_length=data_length), batch_size=batch_size)
+def mock_data_loader(batch_size: int = 5, dataset_length: int = 10):
+    return DataLoader(
+        VideoPredictionDataset(MockMovingMNIST(dataset_length=dataset_length)),
+        batch_size=batch_size,
+    )

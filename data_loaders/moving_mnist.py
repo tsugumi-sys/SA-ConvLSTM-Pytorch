@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Union
 
 import torch
 from torch.utils.data import DataLoader, Dataset, Subset, random_split
@@ -8,7 +8,7 @@ from data_loaders.base import BaseDataLoaders
 
 
 class VideoPredictionDataset(Dataset):
-    def __init__(self, data: Subset, input_frames: int = 10):
+    def __init__(self, data: Union[Subset, Dataset], input_frames: int = 10):
         self.data = data
         self.input_frames = input_frames
 
@@ -35,7 +35,7 @@ class MovingMNISTDataLoaders(BaseDataLoaders):
         moving_mnist = MovingMNIST(root="./data", download=True)
         train_dataset, valid_dataset, test_dataset = random_split(
             moving_mnist,
-            [0.7, 0.299, 0.001],
+            [0.7, 0.2, 0.1],
             generator=torch.Generator().manual_seed(42),
         )
         self.train_dataset = VideoPredictionDataset(train_dataset, self.input_frames)

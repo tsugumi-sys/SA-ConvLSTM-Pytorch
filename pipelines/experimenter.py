@@ -1,6 +1,7 @@
 from torch import nn
 
-from pipelines.base import BaseDataLoaders, BaseRunner
+from data_loaders.base import BaseDataLoaders
+from pipelines.base import BaseRunner
 from pipelines.evaluator import Evaluator
 from pipelines.trainer import Trainer, TrainingParams
 
