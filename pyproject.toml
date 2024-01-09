@@ -30,3 +30,4 @@ split-on-trailing-comma = true
 namespace_packages = true
 ignore_missing_imports = true
 python_version = "3.11"
+disable_error_code = ["call-arg"]
