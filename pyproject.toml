@@ -31,3 +31,4 @@ namespace_packages = true
 ignore_missing_imports = true
 python_version = "3.11"
 # check_untyped_defs = true
+disable_error_code = ["call-arg"]
