@@ -4,7 +4,7 @@ import torch
 from torch.utils.data import DataLoader, Dataset, Subset, random_split
 from torchvision.datasets import MovingMNIST
 
-from pipelines.base import BaseDataLoaders
+from data_loaders.base import BaseDataLoaders
 
 
 class VideoPredictionDataset(Dataset):
