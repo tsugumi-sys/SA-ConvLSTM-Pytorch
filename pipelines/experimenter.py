@@ -1,5 +1,3 @@
-from typing import Any, Dict
-
 from torch import nn
 
 from pipelines.base import BaseDataLoaders, BaseRunner
@@ -12,7 +10,7 @@ class Experimenter(BaseRunner):
         self,
         artifact_dir: str,
         data_loaders: BaseDataLoaders,
-        model: Dict[str, Any],
+        model: nn.Module,
         training_params: TrainingParams,
     ):
         self._artifact_dir = artifact_dir
