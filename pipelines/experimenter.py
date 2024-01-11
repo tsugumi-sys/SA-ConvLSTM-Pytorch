@@ -1,5 +1,6 @@
 from torch import nn
 
+from core.constants import DEVICE
 from data_loaders.base import BaseDataLoaders
 from pipelines.base import BaseRunner
 from pipelines.evaluator import Evaluator
@@ -41,6 +42,7 @@ class Experimenter(BaseRunner):
 
     def __train(self):
         print(f"Training {self._model.__class__.__name__} ...")
+        print(f" - Device: {DEVICE}")
         trainer = Trainer(
             model=self._model,
             train_epochs=self._training_params["epochs"],
