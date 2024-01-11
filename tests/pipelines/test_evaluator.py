@@ -13,9 +13,22 @@ dataset_length = 5
 data_loader = mock_data_loader(batch_size, dataset_length)
 
 
-def test_run():
+def test_run_return_sequences():
     with tempfile.TemporaryDirectory() as tempdirpath:
         model = TestModel(return_sequences=True)
+        evaluator = Evaluator(
+            model,
+            test_dataloader=data_loader,
+            artifact_dir=tempdirpath,
+        )
+        evaluator.run()
+        for i in range(dataset_length):
+            assert os.path.exists(os.path.join(tempdirpath, f"test-case{i}.png"))
+
+
+def test_run_return_sequences_false():
+    with tempfile.TemporaryDirectory() as tempdirpath:
+        model = TestModel(return_sequences=False)
         evaluator = Evaluator(
             model,
             test_dataloader=data_loader,
