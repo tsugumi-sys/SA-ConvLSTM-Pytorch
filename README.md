@@ -7,17 +7,6 @@
 
 ## Examples
 
-### Training and Evaluation of Self-Attention ConvLSTM (with memory module)
-
-```bash
-python -m pipelines.moving_mnist_pipeline.self_attention_memory_convlstm
-```
-
-### Training and Evaluation of ConvLSTM
-```bash
-python -m pipelines.moving_mnist_pipeline.convlstm
-```
-
 ## Directories
 
 ## `convlstm/`
