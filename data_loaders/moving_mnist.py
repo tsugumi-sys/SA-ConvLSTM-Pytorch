@@ -56,7 +56,9 @@ class MovingMNISTDataLoaders(BaseDataLoaders):
             )
         self.split_ratios = split_ratios
 
-        moving_mnist = MovingMNIST(root="./data", download=True)
+        moving_mnist = MovingMNIST(
+            root="./data", download=True, transform=lambda x: x / 255.0
+        )
         train_dataset, valid_dataset, test_dataset = random_split(
             moving_mnist,
             [*self.split_ratios],
