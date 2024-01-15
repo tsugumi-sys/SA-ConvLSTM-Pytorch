@@ -1,9 +1,8 @@
 from typing import Callable, Optional
 
 import numpy as np
+import torch
 from torch import nn
-
-from pipelines.utils.trainer_utils import save_seq2seq_model
 
 
 class EarlyStopping:
@@ -60,5 +59,5 @@ class EarlyStopping:
                 f"Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}). Saving model ..."
             )
 
-        save_seq2seq_model(model, self.model_save_path)
+        torch.save(model.state_dict(), self.model_save_path)
         self.val_loss_min = val_loss
