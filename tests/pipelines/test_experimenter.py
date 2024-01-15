@@ -46,6 +46,7 @@ def test_run(mocked_save_seq2seq_model):
         # testing trainer artifacts
         assert os.path.exists(os.path.join(tempdirpath, "train", "model.pt"))
         assert os.path.exists(os.path.join(tempdirpath, "train", "metrics.csv"))
+        assert os.path.exists(os.path.join(tempdirpath, "train", "learning_curve.png"))
         # testing evaluator artifacts
         for i in range(dataset_length):
             assert os.path.exists(

@@ -11,8 +11,7 @@ from torch import nn
 
 
 def save_learning_curve_plot(
-    save_dir_path: str,
-    model_name: str,
+    save_img_path: str,
     training_losses: List,
     validation_losses: List,
 ) -> None:
@@ -47,8 +46,7 @@ def save_learning_curve_plot(
 
     ax.legend(loc="upper center")
     plt.tight_layout()
-    save_path = os.path.join(save_dir_path, f"{model_name}_training_results.png")
-    plt.savefig(save_path)
+    plt.savefig(save_img_path)
     plt.close()
 
 

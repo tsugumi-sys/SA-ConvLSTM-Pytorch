@@ -43,6 +43,7 @@ def test_run(mocked_save_seq2seq_model):
 
         assert os.path.exists(os.path.join(tempdirpath, "checkpoint.pt"))
         assert os.path.exists(os.path.join(tempdirpath, "example.csv"))
+        assert os.path.exists(os.path.join(tempdirpath, "learning_curve.png"))
         for metrics in trainer.training_metrics.values():
             assert len(metrics) == epochs
 
@@ -75,5 +76,6 @@ def test_run_early_stopping(mocked_save_seq2seq_model):
 
         assert os.path.exists(os.path.join(tempdirpath, "checkpoint.pt"))
         assert os.path.exists(os.path.join(tempdirpath, "example.csv"))
+        assert os.path.exists(os.path.join(tempdirpath, "learning_curve.png"))
         for metrics in trainer.training_metrics.values():
             assert len(metrics) == epochs - patience

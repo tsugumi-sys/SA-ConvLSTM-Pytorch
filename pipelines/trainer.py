@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 from core.constants import DEVICE
 from pipelines.base import BaseRunner
 from pipelines.utils.early_stopping import EarlyStopping
+from pipelines.utils.visualize_utils import save_learning_curve_plot
 
 
 class TrainingParams(TypedDict):
@@ -83,7 +84,7 @@ class Trainer(BaseRunner):
                 print(f"Early stopped at epoch {epoch}")
                 break
 
-        self.__save_metrics()
+        self._save_artifacts()
 
     @property
     def training_metrics(self) -> TrainingMetrics:
@@ -139,7 +140,12 @@ class Trainer(BaseRunner):
     def __latest_training_metric(self) -> Dict[str, float]:
         return {k: cast(List[float], v)[-1] for k, v in self._training_metrics.items()}
 
-    def __save_metrics(self) -> None:
+    def _save_artifacts(self) -> None:
         pd.DataFrame(self._training_metrics).to_csv(
             os.path.join(self.artifact_dir, self.metrics_filename)
+        )
+        save_learning_curve_plot(
+            os.path.join(self.artifact_dir, "learning_curve.png"),
+            self._training_metrics["train_loss"],
+            self._training_metrics["validation_loss"],
         )
