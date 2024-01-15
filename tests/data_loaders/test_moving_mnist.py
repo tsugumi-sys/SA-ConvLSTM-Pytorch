@@ -26,7 +26,7 @@ def test_MovingMNISTDataLoaders(mocked_MovingMNIST):
 
 
 @patch("data_loaders.moving_mnist.MovingMNIST")
-def test_MovingMNISTDataLoaders_label_frames_set(mocked_MovingMNIST):
+def test_MovingMNISTDataLoaders_set_label_frames(mocked_MovingMNIST):
     dataset_length = 10
     train_batch_size = 2
     input_frames = 10
@@ -48,7 +48,31 @@ def test_MovingMNISTDataLoaders_label_frames_set(mocked_MovingMNIST):
 
 
 @patch("data_loaders.moving_mnist.MovingMNIST")
-def test_MovingMNISTDataLoaders_split_ratio_set(mocked_MovingMNIST):
+def test_MovingMNISTDataLoaders_set_validation_batch_size(mocked_MovingMNIST):
+    dataset_length = 10
+    train_batch_size = 2
+    validation_batch_size = 2
+    input_frames = 10
+    label_frames = 1
+    mocked_MovingMNIST.return_value = MockMovingMNIST(dataset_length=dataset_length)
+    dataloaders = MovingMNISTDataLoaders(
+        train_batch_size=train_batch_size,
+        validation_batch_size=validation_batch_size,
+        input_frames=input_frames,
+        label_frames=label_frames,
+    )
+    assert len(dataloaders.train_dataloader) == 4
+    assert len(dataloaders.validation_dataloader) == 1
+    assert len(dataloaders.test_dataloader) == 1
+    input, target = next(iter(dataloaders.train_dataloader))
+    assert input.size(0) == train_batch_size
+    assert input.size(2) == input_frames
+    assert target.size(0) == train_batch_size
+    assert target.size(2) == label_frames
+
+
+@patch("data_loaders.moving_mnist.MovingMNIST")
+def test_MovingMNISTDataLoaders_set_split_ratio(mocked_MovingMNIST):
     dataset_length = 10
     train_batch_size = 1
     input_frames = 10

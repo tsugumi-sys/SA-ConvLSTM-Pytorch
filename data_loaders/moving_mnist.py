@@ -37,12 +37,14 @@ class MovingMNISTDataLoaders(BaseDataLoaders):
     def __init__(
         self,
         train_batch_size: int,
+        validation_batch_size: int = 1,
         input_frames: int = 10,
         label_frames: int | None = None,
         split_ratios: List[float] | None = None,
         shuffle: bool = True,
     ):
         self.train_batch_size = train_batch_size
+        self.validation_batch_size = validation_batch_size
         self.input_frames = input_frames
         self.label_frames = label_frames
         self.shuffle = shuffle
@@ -76,7 +78,11 @@ class MovingMNISTDataLoaders(BaseDataLoaders):
 
     @property
     def validation_dataloader(self) -> DataLoader:
-        return DataLoader(self.valid_dataset, batch_size=1, shuffle=self.shuffle)
+        return DataLoader(
+            self.valid_dataset,
+            batch_size=self.validation_batch_size,
+            shuffle=self.shuffle,
+        )
 
     @property
     def test_dataloader(self) -> DataLoader:
