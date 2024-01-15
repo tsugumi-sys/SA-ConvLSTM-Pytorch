@@ -1,3 +1,5 @@
+import os
+
 from torch import nn
 
 from core.constants import DEVICE
@@ -52,7 +54,7 @@ class Experimenter(BaseRunner):
             accuracy_criterion=self._training_params["accuracy_criterion"],
             optimizer=self._training_params["optimizer"],
             early_stopping=self._training_params["early_stopping"],
-            artifact_dir=self._artifact_dir,
+            artifact_dir=os.path.join(self._artifact_dir, "train"),
             metrics_filename=self._training_params.get("metrics_filename")
             or "metrics.csv",
         )
@@ -63,6 +65,6 @@ class Experimenter(BaseRunner):
         evaluator = Evaluator(
             model=self._model,
             test_dataloader=self._data_loaders.test_dataloader,
-            artifact_dir=self._artifact_dir,
+            artifact_dir=os.path.join(self._artifact_dir, "evaluation"),
         )
         evaluator.run()

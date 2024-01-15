@@ -32,7 +32,7 @@ def test_run(mocked_save_seq2seq_model):
                 patience=30,
                 verbose=True,
                 delta=0.0001,
-                model_save_path=os.path.join(tempdirpath, "model.pt"),
+                model_save_path=os.path.join(tempdirpath, "train", "model.pt"),
             ),
             "metrics_filename": "metrics.csv",
         }
@@ -44,8 +44,10 @@ def test_run(mocked_save_seq2seq_model):
         experimenter.run()
 
         # testing trainer artifacts
-        assert os.path.exists(os.path.join(tempdirpath, "model.pt"))
-        assert os.path.exists(os.path.join(tempdirpath, "metrics.csv"))
+        assert os.path.exists(os.path.join(tempdirpath, "train", "model.pt"))
+        assert os.path.exists(os.path.join(tempdirpath, "train", "metrics.csv"))
         # testing evaluator artifacts
         for i in range(dataset_length):
-            assert os.path.exists(os.path.join(tempdirpath, f"test-case{i}.png"))
+            assert os.path.exists(
+                os.path.join(tempdirpath, "evaluation", f"test-case{i}.png")
+            )
