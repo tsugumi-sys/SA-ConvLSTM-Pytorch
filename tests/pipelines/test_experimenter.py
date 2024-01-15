@@ -16,7 +16,6 @@ def test_run():
         model = TestModel()
         training_params: TrainingParams = {
             "epochs": 1,
-            "batch_size": 1,
             "loss_criterion": nn.MSELoss(),
             "accuracy_criterion": nn.L1Loss(),
             "optimizer": Adam(model.parameters(), lr=0.0005),
