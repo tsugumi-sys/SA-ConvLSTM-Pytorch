@@ -18,6 +18,6 @@ def test_SAMConvLSTM():
         },
     }
 
-    model = SAMConvLSTM(**model_params)
+    model = SAMConvLSTM(**model_params).to(DEVICE)
     output = model(torch.rand((2, 1, 3, 8, 8), dtype=torch.float, device=DEVICE))
     assert output.size() == (2, 1, 3, 8, 8)
