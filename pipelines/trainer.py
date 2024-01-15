@@ -16,7 +16,6 @@ from pipelines.utils.visualize_utils import save_learning_curve_plot
 
 class TrainingParams(TypedDict):
     epochs: int
-    batch_size: int
     loss_criterion: nn.Module
     accuracy_criterion: nn.Module
     optimizer: nn.Module
