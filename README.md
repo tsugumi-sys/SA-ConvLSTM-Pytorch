@@ -8,8 +8,7 @@
 ## Examples
 
 ```bash
-python -m examples.moving_mnist_convlstm
-  
+python -m examples.moving_mnist_convlstm  
 ```
 
 ## Directories
