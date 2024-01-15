@@ -165,3 +165,4 @@ poetry.lock
 
 MovingMNIST/
 tmp/
+*.pt
