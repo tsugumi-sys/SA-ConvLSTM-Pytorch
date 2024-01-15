@@ -8,9 +8,15 @@ from data_loaders.base import BaseDataLoaders
 
 
 class VideoPredictionDataset(Dataset):
-    def __init__(self, data: Union[Subset, Dataset], input_frames: int = 10):
+    def __init__(
+        self,
+        data: Union[Subset, Dataset],
+        input_frames: int = 10,
+        label_frames: int | None = None,
+    ):
         self.data = data
         self.input_frames = input_frames
+        self.label_frames = label_frames
 
     def __len__(self):
         return len(self.data)
@@ -18,6 +24,8 @@ class VideoPredictionDataset(Dataset):
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         input_frames = self.data[idx][: self.input_frames, :, :, :].to(torch.float32)
         label_frames = self.data[idx][self.input_frames :, :, :, :].to(torch.float32)
+        if self.label_frames is not None:
+            label_frames = label_frames[: self.label_frames, :]
         return (
             torch.swapaxes(input_frames, 0, 1),
             torch.swapaxes(label_frames, 0, 1),
@@ -26,10 +34,15 @@ class VideoPredictionDataset(Dataset):
 
 class MovingMNISTDataLoaders(BaseDataLoaders):
     def __init__(
-        self, train_batch_size: int, input_frames: int = 10, shuffle: bool = True
+        self,
+        train_batch_size: int,
+        input_frames: int = 10,
+        label_frames: int | None = None,
+        shuffle: bool = True,
     ):
         self.train_batch_size = train_batch_size
         self.input_frames = input_frames
+        self.label_frames = label_frames
         self.shuffle = shuffle
 
         moving_mnist = MovingMNIST(root="./data", download=True)
@@ -38,8 +51,12 @@ class MovingMNISTDataLoaders(BaseDataLoaders):
             [0.7, 0.2, 0.1],
             generator=torch.Generator().manual_seed(42),
         )
-        self.train_dataset = VideoPredictionDataset(train_dataset, self.input_frames)
-        self.valid_dataset = VideoPredictionDataset(valid_dataset, self.input_frames)
+        self.train_dataset = VideoPredictionDataset(
+            train_dataset, self.input_frames, self.label_frames
+        )
+        self.valid_dataset = VideoPredictionDataset(
+            valid_dataset, self.input_frames, self.label_frames
+        )
         self.test_dataset = VideoPredictionDataset(test_dataset, self.input_frames)
 
     @property
