@@ -57,21 +57,21 @@ def test_MovingMNISTDataLoaders_split_ratio_set(mocked_MovingMNIST):
         dataloaders = MovingMNISTDataLoaders(
             train_batch_size=train_batch_size,
             input_frames=input_frames,
-            split_ratios=(0.6, 0.1, 0.1),
+            split_ratios=[0.6, 0.1, 0.1],
         )
 
     with pytest.raises(ValueError):
         dataloaders = MovingMNISTDataLoaders(
             train_batch_size=train_batch_size,
             input_frames=input_frames,
-            split_ratios=(0.6, 0.3, 0.3),
+            split_ratios=[0.6, 0.3, 0.3],
         )
 
     mocked_MovingMNIST.return_value = MockMovingMNIST(dataset_length=dataset_length)
     dataloaders = MovingMNISTDataLoaders(
         train_batch_size=train_batch_size,
         input_frames=input_frames,
-        split_ratios=(0.6, 0.2, 0.2),
+        split_ratios=[0.6, 0.2, 0.2],
     )
     assert len(dataloaders.train_dataloader) == 6
     assert len(dataloaders.validation_dataloader) == 2
