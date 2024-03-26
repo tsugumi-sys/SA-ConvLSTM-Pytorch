@@ -21,6 +21,7 @@ jobs:
           pytest
       - name: Run Ruff Linter
         run: |
+          ruff format --check .
           ruff check .
       - name: Run mypy Type Checking
         run: |

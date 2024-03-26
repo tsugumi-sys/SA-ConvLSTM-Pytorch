@@ -17,6 +17,8 @@ class MockMovingMNIST(Dataset):
 
 
 class MockMovingMNISTDataLoaders(BaseDataLoaders):
+    """Customized MovingMNIST dataset loader for sequence to sequence model"""
+
     def __init__(
         self,
         dataset_length: int,
