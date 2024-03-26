@@ -7,10 +7,17 @@
 
 ## Examples
 
+### ConvLSTM
+
 ```bash
 python -m examples.moving_mnist_convlstm  
 ```
 
+### Self-Attention ConvLSTM
+
+```bash
+python -m examples.moving_mnist_self_attention_memory_convlstm
+```
 ## Directories
 
 ### `convlstm/`
