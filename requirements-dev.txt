@@ -3,3 +3,4 @@ black
 pre-commit
 mypy
 pytest
+python-lsp-server
