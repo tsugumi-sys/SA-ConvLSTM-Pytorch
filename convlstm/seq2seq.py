@@ -1,13 +1,18 @@
-from typing import NotRequired, TypedDict
+import logging
+from typing import NotRequired, Optional, TypedDict
 
 import torch
 from torch import nn
 
 from convlstm.model import ConvLSTM, ConvLSTMParams
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 
 class Seq2SeqParams(TypedDict):
     input_seq_length: int
+    label_seq_length: NotRequired[Optional[int]]
     num_layers: int
     num_kernels: int
     return_sequences: NotRequired[bool]
@@ -23,18 +28,25 @@ class Seq2Seq(nn.Module):
         num_layers: int,
         num_kernels: int,
         convlstm_params: ConvLSTMParams,
+        label_seq_length: Optional[int] = None,
         return_sequences: bool = False,
     ) -> None:
         """
 
         Args:
             input_seq_length (int): Number of input frames.
+            label_seq_length (Optional[int]): Number of label frames.
             num_layers (int): Number of ConvLSTM layers.
             num_kernels (int): Number of kernels.
-            return_sequences (int): If True, the model predict the next frames that is the same length of inputs. If False, the model predicts only one next frame.
+            return_sequences (int): If True, the model predict the next frames that is the same length of inputs. If False, the model predicts only one next frame or the frames given by `label_seq_length`.
         """
         super().__init__()
         self.input_seq_length = input_seq_length
+        self.label_seq_length = label_seq_length
+        if label_seq_length is not None and return_sequences is True:
+            logger.warning(
+                "the `label_seq_length` is ignored because `return_sequences` is set to True."
+            )
         self.num_layers = num_layers
         self.num_kernels = num_kernels
         self.return_sequences = return_sequences
@@ -107,5 +119,8 @@ class Seq2Seq(nn.Module):
 
         if self.return_sequences is True:
             return output
+
+        if self.label_seq_length:
+            return output[:, :, : self.label_seq_length, ...]
 
         return output[:, :, -1:, ...]
