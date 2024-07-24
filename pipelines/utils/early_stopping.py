@@ -28,7 +28,7 @@ class EarlyStopping:
         self.counter = 0
         self.best_score: Optional[float] = None
         self.early_stop = False
-        self.val_loss_min = np.Inf
+        self.val_loss_min = np.inf
         self.delta = delta
         self.model_filename = model_save_path
         if not model_save_path.endswith(".pt"):
