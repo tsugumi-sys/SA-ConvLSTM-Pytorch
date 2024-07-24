@@ -1,5 +1,5 @@
-torch
-torchvision
-pandas
-numpy
-seaborn
+numpy==2.0.1
+pandas==2.2.2
+seaborn==0.13.2
+torch==2.3.1
+torchvision==0.18.1
